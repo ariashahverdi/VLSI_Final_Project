@@ -62,6 +62,63 @@ int * getRandom(int module_count)
 }
 
 
+int * smart_placement(int module_count)
+{
+  int  *r;
+  int i,j;
+  int duplicate = 1;
+  int symbol = 1;
+  int random_no;
+  int digit_count = 2;
+  int symbol_count = 0;
+
+        r = (int*)malloc(((module_count * 2) - 1) * sizeof(int));
+        r[0] = (rand() % module_count) + 1;
+        while((r[1] = (rand() % module_count) + 1) == r[0]);
+	/* start filling polish expression */
+        for(i=2; i<((2*module_count)-1); i++){
+		/* generats number accross entire number space*/
+		random_no =  (rand() % (module_count * 2)) + 1;
+		/* detect number belongs to module number*/
+		if(random_no < (module_count+1)){
+			digit_count++;
+
+			if(digit_count>module_count){
+                                i--;
+                                continue;
+                        }
+			/*check duplicate number*/
+			while(duplicate){
+                                duplicate = 0;
+                                r[i]  = (rand() % module_count) + 1;
+                                for(j=0; j<i; j++){
+
+                                        if(r[j] == r[i])
+                                                duplicate = 1;
+                                }
+                        }
+                        duplicate = 1;
+                        symbol = 1;
+		}
+		/* numbers associated with V and H*/
+		else{
+			symbol_count++;
+			/*Symbol should be n-1*/
+			if(symbol_count > digit_count || (symbol_count == digit_count)){
+				symbol_count--;
+				i--;
+				continue;
+			}
+			/*numberspace devides eqaully between V and H for fair probability*/
+		 	if(random_no < (module_count+(module_count/2)+1))
+				r[i] = module_count+1;
+			else
+				r[i] = module_count+2;
+       		}
+        }
+	return r;
+}
+
 /*sorts sizes of a given module accross their width*/
 void sort_w(struct slicing_cntr *slice_cntr)
 {
@@ -442,7 +499,7 @@ int parse_design(char *filename, struct module_dim ***module_array, float *lambd
         fscanf(fp, "%f %f %f\n", &W, &H, &P);
         temp_size += W*H;
         power[module_no-1] = P;
-        //printf("%f %f %f\n", W, H, P);
+        printf("%f %f %f\n", 1000*W, 1000*H, P);
 
         temp_module = (struct module_dim*)malloc(sizeof(struct module_dim));
 		*module_array_temp = temp_module;
