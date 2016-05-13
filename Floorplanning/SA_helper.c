@@ -421,6 +421,7 @@ struct cost sizing_slicing(struct module_dim **module_array, int *polish_array, 
 int parse_design(char *filename, struct module_dim ***module_array, float *lambda,float *total_size)
 {
 	FILE *fp;
+	int i;
 	int module_count=0;
 	float power[100];
 	float temp_size = 0;
@@ -462,15 +463,15 @@ int parse_design(char *filename, struct module_dim ***module_array, float *lambd
 	*total_size = temp_size;
 
 
-	if((fp = fopen("data/gcc.ptrace","w")) == NULL){
+	if((fp = fopen("../data/gcc.ptrace","w")) == NULL){
 		printf("\nCould not create out_design.flp file!\n");
 		exit(1);
 	}
-	for(int i=0;i<module_count;i++){
+	for(i=0;i<module_count;i++){
 		fprintf(fp,"%d ", i+1);
 	}
 	fprintf(fp,"\n");
-	for(int i=0;i<module_count;i++){
+	for(i=0;i<module_count;i++){
 		fprintf(fp,"%f ", power[i]);
 	}
 	fprintf(fp,"\n");
@@ -495,7 +496,7 @@ void optimal_design(int module_count, struct cost cost, struct module_dim **modu
 	horizontal = module_count + 2;
 
 
-	if((fp = fopen("data/ev6.flp","w")) == NULL){
+	if((fp = fopen("../data/ev6.flp","w")) == NULL){
 		printf("\nCould not create out_design.flp file!\n");
 		exit(1);
 	}

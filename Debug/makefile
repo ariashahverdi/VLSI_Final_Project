@@ -29,7 +29,7 @@ all: VLSI_Final_Project
 # Tool invocations
 VLSI_Final_Project: $(OBJS) $(USER_OBJS)
 	@echo 'Building target: $@'
-	@echo 'Invoking: Cross GCC Linker'
+	@echo 'Invoking: GCC C Linker'
 	gcc  -o "VLSI_Final_Project" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '

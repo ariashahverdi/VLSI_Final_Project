@@ -52,7 +52,7 @@ C_DEPS += \
 # Each subdirectory must supply rules for building sources it contributes
 HotSpot-5.02/%.o: ../HotSpot-5.02/%.c
 	@echo 'Building file: $<'
-	@echo 'Invoking: Cross GCC Compiler'
+	@echo 'Invoking: GCC C Compiler'
 	gcc -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@)" -o "$@" "$<"
 	@echo 'Finished building: $<'
 	@echo ' '

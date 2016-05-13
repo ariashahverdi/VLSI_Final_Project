@@ -3,7 +3,8 @@
 #include<string.h>
 #include<time.h>
 #include<math.h>
-#include"SA_helper.h"
+#include"Floorplanning/SA_helper.h"
+#include"HotSpot-5.02/hotspot.h"
 
 
 void main(int argc , char* argv[])
@@ -29,6 +30,15 @@ void main(int argc , char* argv[])
 	float delta_area;
 	float random;
 	float param_exp;
+
+	//Calling Hotspot
+	char *argv_hotspot[5]={
+        "./hotspot",
+        "-f",
+        "../data/ev6.flp",
+        "-p",
+        "../data/gcc.ptrace"};
+    float cur_temp;
 
 	/*pseudo-random number generator is initialized using time feed*/
 	srand( (unsigned)time( NULL ) );
@@ -95,6 +105,9 @@ void main(int argc , char* argv[])
 	printf("\n");
 	/*generates output design file */
 	optimal_design(module_count, cost, module_array,polish_exp);
+
+    cur_temp = get_temp(5, argv_hotspot);
+    printf("\nMaximum Temperature: %f\n", cur_temp);
 
 	/*free allocated dynamic memory*/
 	module_array_temp = module_array;

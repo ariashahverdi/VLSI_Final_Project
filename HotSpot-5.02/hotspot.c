@@ -276,7 +276,7 @@ void free_names(char **m)
  * the columns are specified doesn't have to match that of the floorplan 
  * file.
  */
-double get_temp(int argc, char **argv)
+float get_temp(int argc, char **argv)
 {
 	int i, j, idx, base = 0, count = 0, n = 0;
 	int num, size, lines = 0, do_transient = TRUE;
@@ -533,8 +533,8 @@ double get_temp(int argc, char **argv)
 	//fprintf(stdout, "Unit\tSteady(Kelvin)\n");
 	//dump_temp(model, steady_temp, "stdout");
 
-    double max_temp = 0;
-    for(int i=0;i<4*n;i++){
+    float max_temp = 0;
+    for(i=0;i<30;i++){
     	if (steady_temp[i] > max_temp) max_temp = steady_temp[i];
     }
 
