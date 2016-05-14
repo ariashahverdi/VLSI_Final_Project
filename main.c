@@ -23,7 +23,7 @@ void main(int argc , char* argv[])
 	float area,area_new;
 	float fin_lambda, lambda_new;
 	int *polish_exp;
-    unsigned int init_temp = 100;
+    unsigned int init_temp = 100000;
 	int *polish_exp_new;
 	float delta_area;
 	int random;
@@ -62,7 +62,8 @@ void main(int argc , char* argv[])
 
 		for(i=0; i<80; i++){
 
-        polish_exp_new = getRandom(module_count);
+        //polish_exp_new = getRandom(module_count);
+		polish_exp_new = smart_move(module_count, polish_exp);
 		area_new = optimal_design(module_count, module_array, polish_exp_new);
 		lambda_new = (area_new-total_size)/total_size;
 		delta_area = area_new - area;
