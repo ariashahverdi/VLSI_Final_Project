@@ -562,7 +562,6 @@ void optimal_design(int module_count, struct cost cost, struct module_dim **modu
 	float height[2*module_count-2];
 	int next[2*module_count-1];
 
-
 	for(i=0; i<(2*module_count-1); i++){
 		next[i] = i+1;
 		if(vertical != polish_exp[i] && horizontal != polish_exp[i] ){
@@ -668,33 +667,37 @@ void optimal_design(int module_count, struct cost cost, struct module_dim **modu
 
 	for(i=0; i<(2*module_count-1); i++){polish_exp[i] = temp_polish[i];}
 
-	/*
+
 	for (i=0; i<module_count; i++){
-		printf("%d Width: %f , Height: %f, X_axis: %f, Y_axis: %f\n",i,width[i],height[i], x_axis[i], y_axis[i]);
+		//printf("%d Width: %f , Height: %f, X_axis: %f, Y_axis: %f\n",i,width[i],height[i], x_axis[i], y_axis[i]);
+		//printf("%d X_axis: %f, Y_axis: %f\n",i,x_axis[i], y_axis[i]);
     }
+
+
+	for(i=0; i<module_count; i++){
+			temp_module = module_array[i];
+			temp_module->x_axis = x_axis[i];
+			temp_module->y_axis = y_axis[i];
+	}
+
+	/*
+	for(i=0; i<module_count; i++){
+			temp_module = module_array[i];
+			float w = temp_module->w;
+			float h = temp_module->h;
+			float x_axis = temp_module->x_axis;
+			float y_axis = temp_module->y_axis;
+			printf("i: %d, w: %f, h: %f, x_axis: %f, y_axis: %f\n",i,w,h,x_axis,y_axis);
+
+	}
 	*/
 
 	head = cost.final_modules;
-	for(i=0; i<module_count; i++){
-		temp_module = module_array[i];
-		while(temp_module != NULL){
-			if(temp_module->size_no == head[i].size){
-				temp_module->x_axis = x_axis[i];
-				temp_module->y_axis = y_axis[i];
-			}
-			temp_module = temp_module->next;
-		}
-	}
 
 	head = cost.final_modules;
 	for(i=0; i<module_count; i++){
 		temp_module = module_array[i];
-		while(temp_module != NULL){
-			if(temp_module->size_no == head[i].size){
-				sprintf(buf[(head[i].module)-1],"%d %f %f %f %f\n",(head[i].module), temp_module->w, temp_module->h, temp_module->x_axis, temp_module->y_axis);
-			}
-			temp_module = temp_module->next;
-		}
+		sprintf(buf[i],"%d %f %f %f %f\n",(head[i].module), temp_module->w, temp_module->h, temp_module->x_axis, temp_module->y_axis);
 	}
 
 

@@ -22,7 +22,7 @@ void main(int argc , char* argv[])
 	int i;
 	int *polish_exp;
 	int verticle, horizontal;
-    unsigned int init_temp = 10000;
+    unsigned int init_temp = 1000;
 	struct cost cost;
 	struct cost cost_new;
 	int *polish_exp_new;
@@ -74,9 +74,13 @@ void main(int argc , char* argv[])
 		float fin_lambda = (cost.area-total_size)/total_size;
 
 		cnt++;
-		if(cnt==100000){
+		if(cnt==100){
 			printf("%f\n",fin_lambda);
 			cnt=0;
+			optimal_design(module_count, cost, module_array,polish_exp);
+
+		    cur_temp = get_temp(5, argv_hotspot);
+		    printf("\nMaximum Temperature: %f\n", cur_temp);
 		}
 
 
