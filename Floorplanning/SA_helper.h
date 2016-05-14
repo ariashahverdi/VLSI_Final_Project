@@ -49,7 +49,7 @@ struct small_size{
 
 /* helper routing for SA algorithm */
 int *getRandom(int module_count);
-int * smart_placement(int module_count);
+int *smart_placement(int module_count);
 void sort_w(struct slicing_cntr *slice_cntr);
 void sort_h(struct slicing_cntr *slice_cntr);
 struct small_size get_small_size(struct small_size *small_size_head);
