@@ -620,9 +620,9 @@ void populate_R_model_grid(grid_model_t *model, flp_t *flp)
 		model->height > model->config.s_sink || 
 		model->width > model->config.s_spreader || 
 		model->height > model->config.s_spreader) {
-		//print_flp(model->layers[0].flp);
-		//print_flp_fig(model->layers[0].flp);
-		//fatal("inordinate floorplan size!\n");
+		print_flp(model->layers[0].flp);
+		print_flp_fig(model->layers[0].flp);
+		fatal("inordinate floorplan size!\n");
 	}
 
 	/* shortcuts for cell width(cw) and cell height(ch)	*/

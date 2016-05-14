@@ -62,61 +62,39 @@ int * getRandom(int module_count)
 }
 
 
-int * smart_placement(int module_count)
+
+
+
+int * smart_move(int module_count,int *polish_exp,)
 {
-  int  *r;
-  int i,j;
-  int duplicate = 1;
-  int symbol = 1;
-  int random_no;
-  int digit_count = 2;
-  int symbol_count = 0;
+	int i;
+	int vertical, horizontal;
+	vertical = module_count + 1;
+	horizontal = module_count + 2;
+	int move_num = rand()%3;
+	int idx = rand()%module_count;
 
-        r = (int*)malloc(((module_count * 2) - 1) * sizeof(int));
-        r[0] = (rand() % module_count) + 1;
-        while((r[1] = (rand() % module_count) + 1) == r[0]);
-	/* start filling polish expression */
-        for(i=2; i<((2*module_count)-1); i++){
-		/* generats number accross entire number space*/
-		random_no =  (rand() % (module_count * 2)) + 1;
-		/* detect number belongs to module number*/
-		if(random_no < (module_count+1)){
-			digit_count++;
-
-			if(digit_count>module_count){
-                                i--;
-                                continue;
-                        }
-			/*check duplicate number*/
-			while(duplicate){
-                                duplicate = 0;
-                                r[i]  = (rand() % module_count) + 1;
-                                for(j=0; j<i; j++){
-
-                                        if(r[j] == r[i])
-                                                duplicate = 1;
-                                }
-                        }
-                        duplicate = 1;
-                        symbol = 1;
+	switch(move_num){
+	case 0: //Move1 : (Operand Swap) Swap two adjacent operands OK!
+		while(polish_exp[idx] == vertical || polish_exp[idx] == horizontal){
+			idx = (idx+1)%module_count;
 		}
-		/* numbers associated with V and H*/
-		else{
-			symbol_count++;
-			/*Symbol should be n-1*/
-			if(symbol_count > digit_count || (symbol_count == digit_count)){
-				symbol_count--;
-				i--;
-				continue;
-			}
-			/*numberspace devides eqaully between V and H for fair probability*/
-		 	if(random_no < (module_count+(module_count/2)+1))
-				r[i] = module_count+1;
-			else
-				r[i] = module_count+2;
-       		}
-        }
-	return r;
+		if(polish_exp[idx+1] != vertical && polish_exp[idx+1] != horizontal ){
+
+		}
+		break;
+
+	case 1: //Move2 : (Chain Invert) Complement some chain OK!
+		while(1){
+
+
+		}
+		break;
+
+	case 2: //Move3: (Operator/Operand Swap) Swap two adjacent operand and operator Needs to be checked!
+		break;
+	}
+	return 0;
 }
 
 /*sorts sizes of a given module accross their width*/
@@ -539,7 +517,7 @@ int parse_design(char *filename, struct module_dim ***module_array, float *lambd
 
 
 /* generats optimal design output file */
-void optimal_design(int module_count, struct cost cost, struct module_dim **module_array, int *polish_exp)
+int optimal_design(int module_count, struct cost cost, struct module_dim **module_array, int *polish_exp)
 {
 	FILE *fp;
 	int i;
@@ -667,12 +645,12 @@ void optimal_design(int module_count, struct cost cost, struct module_dim **modu
 
 	for(i=0; i<(2*module_count-1); i++){polish_exp[i] = temp_polish[i];}
 
-
+	/*
 	for (i=0; i<module_count; i++){
 		//printf("%d Width: %f , Height: %f, X_axis: %f, Y_axis: %f\n",i,width[i],height[i], x_axis[i], y_axis[i]);
-		//printf("%d X_axis: %f, Y_axis: %f\n",i,x_axis[i], y_axis[i]);
+		printf("%d X_axis: %f, Y_axis: %f\n",i,x_axis[i], y_axis[i]);
     }
-
+	*/
 
 	for(i=0; i<module_count; i++){
 			temp_module = module_array[i];
@@ -695,7 +673,7 @@ void optimal_design(int module_count, struct cost cost, struct module_dim **modu
 	head = cost.final_modules;
 	for(i=0; i<module_count; i++){
 		temp_module = module_array[i];
-		sprintf(buf[i],"%d %f %f %f %f\n",(head[i].module), temp_module->w, temp_module->h, temp_module->x_axis, temp_module->y_axis);
+		sprintf(buf[i],"%d %f %f %f %f\n",i+1, temp_module->w, temp_module->h, temp_module->x_axis, temp_module->y_axis);
 	}
 
 
@@ -705,6 +683,44 @@ void optimal_design(int module_count, struct cost cost, struct module_dim **modu
 	fclose(fp);
 
 
+	temp_module = module_array[0];
+	float min_x = temp_module->x_axis;
+	float max_x = temp_module->x_axis + temp_module->w;
+
+	for (i=1; i < module_count; i++) {
+		temp_module = module_array[i];
+		if (temp_module->x_axis < min_x)
+			min_x = temp_module->x_axis;
+		if (temp_module->x_axis + temp_module->w > max_x)
+			max_x = temp_module->x_axis + temp_module->w;
+	}
+
+	float w_chip =  (max_x - min_x);
+	//printf ("w_chip : %f\n", w_chip);
+
+	temp_module = module_array[0];
+	float min_y = temp_module->y_axis;
+	float max_y = temp_module->y_axis + temp_module->h;
+
+	for (i=1; i < module_count; i++) {
+		temp_module = module_array[i];
+		if (temp_module->y_axis < min_y)
+			min_y = temp_module->y_axis;
+		if (temp_module->y_axis + temp_module->h > max_y)
+			max_y = temp_module->y_axis + temp_module->h;
+	}
+
+	float l_chip =  (max_y - min_y);
+	//printf ("l_chip : %f\n", l_chip);
+
+	float s_sink = 0.060000;
+	float s_spreader = 0.030000;
+
+	if (w_chip > s_sink || l_chip > s_sink ||
+		w_chip > s_spreader || l_chip > s_spreader) {
+		return 0;
+	}
+	return 1;
 }
 
 
@@ -837,12 +853,12 @@ void save_optimal_design(int module_count, struct cost cost, struct module_dim *
 
 	for(i=0; i<(2*module_count-1); i++){polish_exp[i] = temp_polish[i];}
 
-
+	/*
 	for (i=0; i<module_count; i++){
-		//printf("%d Width: %f , Height: %f, X_axis: %f, Y_axis: %f\n",i,width[i],height[i], x_axis[i], y_axis[i]);
+		printf("%d Width: %f , Height: %f, X_axis: %f, Y_axis: %f\n",i,width[i],height[i], x_axis[i], y_axis[i]);
 		//printf("%d X_axis: %f, Y_axis: %f\n",i,x_axis[i], y_axis[i]);
     }
-
+	*/
 
 	for(i=0; i<module_count; i++){
 			temp_module = module_array[i];
@@ -865,7 +881,7 @@ void save_optimal_design(int module_count, struct cost cost, struct module_dim *
 	head = cost.final_modules;
 	for(i=0; i<module_count; i++){
 		temp_module = module_array[i];
-		sprintf(buf[i],"%d %f %f %f %f\n",(head[i].module), temp_module->w, temp_module->h, temp_module->x_axis, temp_module->y_axis);
+		sprintf(buf[i],"%d %f %f %f %f\n",i+1, temp_module->w, temp_module->h, temp_module->x_axis, temp_module->y_axis);
 	}
 
 

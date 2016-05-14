@@ -48,15 +48,14 @@ struct small_size{
 
 
 /* helper routing for SA algorithm */
-int *getRandom(int module_count);
-int *smart_placement(int module_count);
+int *getRandom(int module_count,int module_count);
+int *smart_move(int *polish_exp);
 void sort_w(struct slicing_cntr *slice_cntr);
 void sort_h(struct slicing_cntr *slice_cntr);
 struct small_size get_small_size(struct small_size *small_size_head);
 struct cost sizing_slicing(struct module_dim **module_array, int *polish_array, int module_count);
 int parse_design(char *filename, struct module_dim ***module_array, float * lambda,float * total_size);
-void optimal_design(int module_count, struct cost cost, struct module_dim **module_array, int *polish_exp);
+int optimal_design(int module_count, struct cost cost, struct module_dim **module_array, int *polish_exp);
 void save_optimal_design(int module_count, struct cost cost, struct module_dim **module_array, int *polish_exp);
-
 void print_design(int module_count,struct cost cost,struct module_dim **module_array);
 

@@ -22,7 +22,7 @@ void main(int argc , char* argv[])
 	int i;
 	int *polish_exp;
 	int verticle, horizontal;
-    unsigned int init_temp = 1000;
+    unsigned int init_temp = 10000;
 	struct cost cost;
 	struct cost cost_new;
 	int *polish_exp_new;
@@ -30,6 +30,7 @@ void main(int argc , char* argv[])
 	int random;
 	double param_exp;
 	double min_temp = 370;
+	int flp_ok;
 
 	//Calling Hotspot
 	char *argv_hotspot[5]={
@@ -74,12 +75,15 @@ void main(int argc , char* argv[])
 		float fin_lambda = (cost.area-total_size)/total_size;
 
 		if(fin_lambda < lambda ){
-			polish_exp = polish_exp_new;
-			optimal_design(module_count, cost, module_array,polish_exp_new);
-		    cur_temp = get_temp(5, argv_hotspot);
-		    if(cur_temp < min_temp){
-		    	save_optimal_design(module_count, cost, module_array,polish_exp);
-		    }
+			flp_ok = optimal_design(module_count, cost, module_array,polish_exp);
+			if(flp_ok) {
+				cur_temp = get_temp(5, argv_hotspot);
+			    if(cur_temp < min_temp){
+			    	save_optimal_design(module_count, cost, module_array,polish_exp);
+			    }
+				flp_ok = 0;
+			}
+
 		    //printf("\nMaximum Temperature: %f\n", cur_temp);
 		}
 
@@ -136,9 +140,8 @@ void main(int argc , char* argv[])
 	*/
 	printf("\n");
 	/*generates output design file */
-	optimal_design(module_count, cost, module_array,polish_exp);
-
-    cur_temp = get_temp(5, argv_hotspot);
+	//flp_ok = optimal_design(module_count, cost, module_array,polish_exp);
+	//if(flp_ok) cur_temp = get_temp(5, argv_hotspot);
     printf("\nMaximum Temperature: %f\n", cur_temp);
 
 	/*free allocated dynamic memory*/
