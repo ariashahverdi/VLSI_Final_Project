@@ -62,39 +62,85 @@ int * getRandom(int module_count)
 }
 
 
-
-
-
-int * smart_move(int module_count,int *polish_exp,)
-{
+void print_polish(int num, int * polish){
 	int i;
+	for(i=0;i<2*num-1;i++){
+		printf("%d  ", polish[i]);
+	}
+	printf("\n\n");
+}
+
+
+int * smart_move(int module_count,int *polish_exp)
+{
+	int * new_polish;
+	int i;
+	new_polish = (int*)malloc(((module_count * 2) - 1) * sizeof(int));
 	int vertical, horizontal;
 	vertical = module_count + 1;
 	horizontal = module_count + 2;
-	int move_num = rand()%3;
-	int idx = rand()%module_count;
+	int move_num = rand()%2;
+	int idx = rand()%(2*module_count-1);
+	int idx1, idx2;
+	idx1 = idx;
+	//remove for original code
 
+	//printf("move is : %d, idx is : %d\n",move_num, idx);
+	//print_polish(module_count, polish_exp);
+	for(i=0;i<2*module_count-1;i++){new_polish[i] = polish_exp[i];}
 	switch(move_num){
 	case 0: //Move1 : (Operand Swap) Swap two adjacent operands OK!
-		while(polish_exp[idx] == vertical || polish_exp[idx] == horizontal){
-			idx = (idx+1)%module_count;
+		while(1){
+			idx1 = idx1%(2*module_count-1);
+			if(new_polish[idx1] != vertical){
+				if(new_polish[idx1] != horizontal){ //just a number
+					//look for idx2 then
+					idx2 = idx1 + 1;
+					while(1){
+						idx2 = idx2%(2*module_count-1);
+						if(new_polish[idx2] != vertical){
+							if(new_polish[idx2] != horizontal){ //just a number
+								break;
+							}
+							else{idx2++;} //it was horizontal
+						}
+						else{idx2++;}
+					}
+					if(idx2>idx1) break;
+					idx1 = 0; //we reach end of polish so we start from beginning
+				}
+				else{idx1++;} //it was horizontal
+			}
+			else{idx1++;}
 		}
-		if(polish_exp[idx+1] != vertical && polish_exp[idx+1] != horizontal ){
-
-		}
+		//printf("idx1: %d, idx2 : %d\n",idx1,idx2);
+		int temp = new_polish[idx1];
+		new_polish[idx1] = new_polish[idx2];
+		new_polish[idx2] = temp;
+		//print_polish(module_count, polish_exp);
 		break;
 
 	case 1: //Move2 : (Chain Invert) Complement some chain OK!
 		while(1){
-
-
+			idx = idx%(2*module_count-1);
+			if(new_polish[idx] != vertical){
+				if(new_polish[idx] != horizontal){idx++;} //just a number
+				else {//it was horizontal move so we make it vertical
+					new_polish[idx] = vertical; break;
+				}
+			}
+			else{ //it was vertical move so we make it horizontal
+				new_polish[idx] = horizontal; break;
+			}
 		}
+		//print_polish(module_count, new_polish);
 		break;
 
 	case 2: //Move3: (Operator/Operand Swap) Swap two adjacent operand and operator Needs to be checked!
 		break;
 	}
-	return 0;
+
+	return new_polish;
 }
 
 /*sorts sizes of a given module accross their width*/

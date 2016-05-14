@@ -69,11 +69,14 @@ void main(int argc , char* argv[])
 		for(i=0; i<80; i++){
 
 		polish_exp_new = getRandom(module_count);
+		//polish_exp_new = smart_move(module_count, polish_exp);
+
 		cost_new = sizing_slicing(module_array, polish_exp_new,module_count);
 		delta_area = cost_new.area - cost.area;
 
 		float fin_lambda = (cost.area-total_size)/total_size;
 
+		/*
 		if(fin_lambda < lambda ){
 			flp_ok = optimal_design(module_count, cost, module_array,polish_exp);
 			if(flp_ok) {
@@ -86,18 +89,16 @@ void main(int argc , char* argv[])
 
 		    //printf("\nMaximum Temperature: %f\n", cur_temp);
 		}
-
-		/*
-		cnt++;
-		if(cnt==100){
-			printf("%f\n",fin_lambda);
-			cnt=0;
-			optimal_design(module_count, cost, module_array,polish_exp);
-
-		    cur_temp = get_temp(5, argv_hotspot);
-		    printf("\nMaximum Temperature: %f\n", cur_temp);
-		}
 		*/
+
+		//*
+		cnt++;
+		if(cnt==1000){
+			printf("%f\n",fin_lambda);
+			//polish_exp = getRandom(module_count);
+			cnt=0;
+		}
+		//*/
 
 		/* generates random values between 0.1 and 0.9*/
 		random = (rand() % 9) / 10;
