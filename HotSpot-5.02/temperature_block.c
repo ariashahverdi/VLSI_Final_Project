@@ -96,11 +96,11 @@ void populate_R_model_block(block_model_t *model, flp_t *flp)
 	/* sanity check on floorplan sizes	*/
 	if (w_chip > s_sink || l_chip > s_sink || 
 		w_chip > s_spreader || l_chip > s_spreader) {
-		printf("I was here\n");
-		printf("w_chip: %f, l_chip: %f, s_sink: %f, s_spreader: %f\n",w_chip,l_chip,s_sink,s_spreader);
-		//print_flp(flp);
-		//print_flp_fig(flp);
-		//fatal("inordinate floorplan size!\n");
+		//printf("I was here\n");
+		//printf("w_chip: %f, l_chip: %f, s_sink: %f, s_spreader: %f\n",w_chip,l_chip,s_sink,s_spreader);
+		print_flp(flp);
+		print_flp_fig(flp);
+		fatal("inordinate floorplan size!\n");
 	}
 	if(model->flp != flp || model->n_units != flp->n_units ||
 	   model->n_nodes != NL * flp->n_units + EXTRA)
