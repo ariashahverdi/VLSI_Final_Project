@@ -29,7 +29,7 @@ void main(int argc , char* argv[])
 	float delta_area;
 	int random;
 	double param_exp;
-	double accept = 9.0;
+	double min_temp = 370;
 
 	//Calling Hotspot
 	char *argv_hotspot[5]={
@@ -73,6 +73,17 @@ void main(int argc , char* argv[])
 
 		float fin_lambda = (cost.area-total_size)/total_size;
 
+		if(fin_lambda < lambda ){
+			polish_exp = polish_exp_new;
+			optimal_design(module_count, cost, module_array,polish_exp_new);
+		    cur_temp = get_temp(5, argv_hotspot);
+		    if(cur_temp < min_temp){
+		    	save_optimal_design(module_count, cost, module_array,polish_exp);
+		    }
+		    //printf("\nMaximum Temperature: %f\n", cur_temp);
+		}
+
+		/*
 		cnt++;
 		if(cnt==100){
 			printf("%f\n",fin_lambda);
@@ -82,7 +93,7 @@ void main(int argc , char* argv[])
 		    cur_temp = get_temp(5, argv_hotspot);
 		    printf("\nMaximum Temperature: %f\n", cur_temp);
 		}
-
+		*/
 
 		/* generates random values between 0.1 and 0.9*/
 		random = (rand() % 9) / 10;

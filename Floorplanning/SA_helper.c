@@ -679,7 +679,6 @@ void optimal_design(int module_count, struct cost cost, struct module_dim **modu
 			temp_module->x_axis = x_axis[i];
 			temp_module->y_axis = y_axis[i];
 	}
-
 	/*
 	for(i=0; i<module_count; i++){
 			temp_module = module_array[i];
@@ -689,8 +688,7 @@ void optimal_design(int module_count, struct cost cost, struct module_dim **modu
 			float y_axis = temp_module->y_axis;
 			printf("i: %d, w: %f, h: %f, x_axis: %f, y_axis: %f\n",i,w,h,x_axis,y_axis);
 
-	}
-	*/
+	}*/
 
 	head = cost.final_modules;
 
@@ -706,7 +704,175 @@ void optimal_design(int module_count, struct cost cost, struct module_dim **modu
 	}
 	fclose(fp);
 
-	printf("\n\n ** Done **\n");
+
+}
+
+
+/* generats optimal design output file */
+void save_optimal_design(int module_count, struct cost cost, struct module_dim **module_array, int *polish_exp)
+{
+	FILE *fp;
+	int i;
+	struct module *head;
+	struct module_dim *temp_module;
+	char buf[module_count][100];
+	int vertical, horizontal;
+	int temp_polish [2*module_count-1];
+	for(i=0; i<(2*module_count-1); i++){temp_polish[i] = polish_exp[i];}
+	vertical = module_count + 1;
+	horizontal = module_count + 2;
+
+	if((fp = fopen("../data/113077548.txt","w")) == NULL){
+		printf("\nCould not create out_design.flp file!\n");
+		exit(1);
+	}
+
+	// Change Polish to Axes
+	float width[2*module_count-2];
+	float height[2*module_count-2];
+	int next[2*module_count-1];
+
+	for(i=0; i<(2*module_count-1); i++){
+		next[i] = i+1;
+		if(vertical != polish_exp[i] && horizontal != polish_exp[i] ){
+			temp_module = module_array[polish_exp[i]-1];
+			width[polish_exp[i]-1] = temp_module->w;
+			height[polish_exp[i]-1] = temp_module->h;
+		}
+	}
+
+	next[2*module_count-2] = -1;
+
+	int new_node[2*module_count-1];
+	int first_node[2*module_count-1];
+	int second_node[2*module_count-1];
+    int operator_vh[2*module_count-1];
+	float x_axis[2*module_count-1];
+	float y_axis[2*module_count-1];
+
+	int nodectr = module_count;
+	int stackptr=0;
+	int cur=0;
+	int next_1;
+	int next_2;
+	float w1,w2,h1,h2;
+
+	while(next[cur]!= -1){
+		next_1 = next[cur];
+		next_2 = next[next_1];
+		if(vertical == polish_exp[next_2]){
+		 first_node[stackptr] = polish_exp[cur];
+		 second_node[stackptr] = polish_exp[next_1];
+		 operator_vh[stackptr] = vertical;
+		 new_node[stackptr++] = ++nodectr;
+
+		 w1 = width[polish_exp[cur]-1];
+		 w2 = width[polish_exp[next_1]-1];
+		 h1 = height[polish_exp[cur]-1];
+		 h2 = height[polish_exp[next_1]-1];
+
+		 width[nodectr-1] = w1+w2;
+		 height[nodectr-1] = (h1>h2)? h1 : h2;
+
+		 polish_exp[cur] = nodectr;
+		 next[cur] = next[next_2];
+		 cur=0;
+		}
+
+		else if(horizontal == polish_exp[next_2]){
+		 first_node[stackptr] = polish_exp[cur];
+		 second_node[stackptr] = polish_exp[next_1];
+		 operator_vh[stackptr] = horizontal;
+		 new_node[stackptr++] = ++nodectr;
+
+		 w1 = width[polish_exp[cur]-1];
+		 w2 = width[polish_exp[next_1]-1];
+		 h1 = height[polish_exp[cur]-1];
+		 h2 = height[polish_exp[next_1]-1];
+
+		 width[nodectr-1] = (w1>w2)? w1 : w2;
+		 height[nodectr-1] = h1+h2;
+
+		 polish_exp[cur] = nodectr;
+		 next[cur] = next[next_2];
+		 cur=0;
+		}
+
+		else{
+			cur = next_1;
+			next_1 = next_2;
+			next_2 = next[next_2];
+		}
+	}
+
+	--stackptr;
+	x_axis[new_node[stackptr]-1] =0;
+	y_axis[new_node[stackptr]-1] =0;
+
+	stackptr++;
+
+	float x_axis_block, y_axis_block;
+
+
+	while(stackptr > 0){
+		--stackptr;
+		x_axis_block = x_axis[new_node[stackptr]-1];
+		y_axis_block = y_axis[new_node[stackptr]-1];
+
+		if(operator_vh[stackptr] == vertical){
+			x_axis[first_node[stackptr]-1] = x_axis_block;
+			x_axis[second_node[stackptr]-1] = x_axis_block + width[first_node[stackptr]-1];
+			y_axis[first_node[stackptr]-1] = y_axis_block;
+			y_axis[second_node[stackptr]-1] = y_axis_block;
+		}
+
+		if(operator_vh[stackptr] == horizontal){
+			x_axis[first_node[stackptr]-1] = x_axis_block;
+			x_axis[second_node[stackptr]-1] = x_axis_block;
+			y_axis[first_node[stackptr]-1] = y_axis_block;
+			y_axis[second_node[stackptr]-1] = y_axis_block + height[first_node[stackptr]-1];
+		}
+
+	}
+
+	for(i=0; i<(2*module_count-1); i++){polish_exp[i] = temp_polish[i];}
+
+
+	for (i=0; i<module_count; i++){
+		//printf("%d Width: %f , Height: %f, X_axis: %f, Y_axis: %f\n",i,width[i],height[i], x_axis[i], y_axis[i]);
+		//printf("%d X_axis: %f, Y_axis: %f\n",i,x_axis[i], y_axis[i]);
+    }
+
+
+	for(i=0; i<module_count; i++){
+			temp_module = module_array[i];
+			temp_module->x_axis = x_axis[i];
+			temp_module->y_axis = y_axis[i];
+	}
+	/*
+	for(i=0; i<module_count; i++){
+			temp_module = module_array[i];
+			float w = temp_module->w;
+			float h = temp_module->h;
+			float x_axis = temp_module->x_axis;
+			float y_axis = temp_module->y_axis;
+			printf("i: %d, w: %f, h: %f, x_axis: %f, y_axis: %f\n",i,w,h,x_axis,y_axis);
+
+	}*/
+
+	head = cost.final_modules;
+
+	head = cost.final_modules;
+	for(i=0; i<module_count; i++){
+		temp_module = module_array[i];
+		sprintf(buf[i],"%d %f %f %f %f\n",(head[i].module), temp_module->w, temp_module->h, temp_module->x_axis, temp_module->y_axis);
+	}
+
+
+	for(i=0; i<module_count; i++){
+		fprintf(fp, buf[i]);
+	}
+	fclose(fp);
 
 }
 

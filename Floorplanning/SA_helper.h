@@ -56,5 +56,7 @@ struct small_size get_small_size(struct small_size *small_size_head);
 struct cost sizing_slicing(struct module_dim **module_array, int *polish_array, int module_count);
 int parse_design(char *filename, struct module_dim ***module_array, float * lambda,float * total_size);
 void optimal_design(int module_count, struct cost cost, struct module_dim **module_array, int *polish_exp);
+void save_optimal_design(int module_count, struct cost cost, struct module_dim **module_array, int *polish_exp);
+
 void print_design(int module_count,struct cost cost,struct module_dim **module_array);
 
