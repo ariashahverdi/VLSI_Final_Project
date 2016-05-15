@@ -5,8 +5,8 @@
 #define MOVE 3
 
 //#define PRINT
-//#define PROGRESS
-#define DEBUG
+#define PROGRESS
+//#define DEBUG
 
 /* link list to hold different sizes of same module*/
 struct module_dim{
@@ -62,10 +62,14 @@ void sort_h(struct slicing_cntr *slice_cntr);
 struct small_size get_small_size(struct small_size *small_size_head);
 struct cost sizing_slicing(struct module_dim **module_array, int *polish_array, int module_count);
 int parse_design(char *filename, struct module_dim ***module_array, float * lambda,float * total_size);
+void polish_2_cord(int module_count,struct module_dim **module_array, int * polish_exp);
 
-float get_area(int module_count, struct cost cost, struct module_dim **module_array, int *polish_exp);
-int optimal_design2(int module_count, struct cost cost, struct module_dim **module_array, int *polish_exp);
-void save_design(int module_count, struct cost cost, struct module_dim **module_array, int *polish_exp);
+float get_area(int module_count, struct module_dim **module_array, int *polish_exp);
+void save_design(int module_count, struct module_dim **module_array, int *polish_exp);
+//void print_design(int module_count,struct cost cost,struct module_dim **module_array);
 
-void print_design(int module_count,struct cost cost,struct module_dim **module_array);
+void save_design_ev6(int module_count, struct module_dim **module_array, int *polish_exp);
+void save_design_ev7(int module_count, struct module_dim **module_array, int *polish_exp);
+
+
 
