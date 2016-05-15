@@ -2,9 +2,9 @@
 #include<stdlib.h>
 #include<string.h>
 
-#define PRINT
+//#define PRINT
 #define PROGRESS
-
+//#define DEBUG
 
 /* link list to hold different sizes of same module*/
 struct module_dim{

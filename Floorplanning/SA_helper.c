@@ -73,16 +73,18 @@ void print_polish(int num, int * polish){
 
 int * smart_move(int module_count,int *polish_exp)
 {
+
 	int * new_polish;
 	int i;
 	new_polish = (int*)malloc(((module_count * 2) - 1) * sizeof(int));
 	int vertical, horizontal;
 	vertical = module_count + 1;
 	horizontal = module_count + 2;
-	int move_num = rand()%2;
+	int move_num = rand()%3;
 	int idx = rand()%(2*module_count-1);
 	int idx1, idx2;
 	idx1 = idx;
+	int loop_check = 0;
 	//remove for original code
 
 	//printf("move is : %d, idx is : %d\n",move_num, idx);
@@ -113,37 +115,100 @@ int * smart_move(int module_count,int *polish_exp)
 			}
 			else{idx1++;}
 		}
-#ifdef PRINT
-		printf("idx1: %d, idx2 : %d\n",idx1,idx2);
-#endif
 		int temp = new_polish[idx1];
 		new_polish[idx1] = new_polish[idx2];
 		new_polish[idx2] = temp;
-		//print_polish(module_count, polish_exp);
-		//printf("I did move 1\n");
+#ifdef PRINT
+		printf("idx1: %d, idx2 : %d\n",idx1,idx2);
+		printf("I did Move 1\n");
+#endif
+
+#ifdef DEBUG
+			printf("** M1 **\n");
+#endif
 		break;
 
 	case 1: //Move2 : (Chain Invert) Complement some chain OK!
 		while(1){
+			//////////// safety check /////////////
+			loop_check++;
+			if(loop_check>2*module_count) break;
+			///////////////////////////////////////
 			idx = idx%(2*module_count-1);
+			loop_check++;
+			if(loop_check>2*module_count) break;
 			if(new_polish[idx] != vertical){
 				if(new_polish[idx] != horizontal){idx++;} //just a number
 				else {//it was horizontal move so we make it vertical
-					new_polish[idx] = vertical; break;
+					if(new_polish[idx+1] == vertical){
+						new_polish[idx] = vertical;
+						new_polish[idx+1] = horizontal;
+						break;
+					}
+					idx++;
 				}
 			}
 			else{ //it was vertical move so we make it horizontal
-				new_polish[idx] = horizontal; break;
+				if(new_polish[idx+1] == vertical){
+					new_polish[idx] = horizontal;
+					new_polish[idx+1] = vertical;
+					break;
+				}
+				idx++;
 			}
 		}
-		//print_polish(module_count, new_polish);
+
 #ifdef PRINT
-		printf("idx1: %d\n",idx1);
+		printf("idx: %d\n",idx);
+		printf("I did Move 2\n");
 #endif
-		//printf("I did move 2\n");
+
+#ifdef DEBUG
+			printf("** M2 **\n");
+#endif
+
 		break;
 
 	case 2: //Move3: (Operator/Operand Swap) Swap two adjacent operand and operator Needs to be checked!
+		while(1){
+			//////////// safety check /////////////
+			loop_check++;
+			if(loop_check>2*module_count) break;
+			///////////////////////////////////////
+			idx = idx%(2*module_count-1);
+			if(new_polish[idx] != vertical){
+				if(new_polish[idx] != horizontal){//just a number
+					if(new_polish[idx+1] == horizontal || new_polish[idx+1] == vertical){//ok to move, check conditions
+						int N_k = 0;
+						for(i=0;i<idx+1;i++){
+							if(new_polish[i] == horizontal || new_polish[i] == vertical){N_k++;}
+						}
+#ifdef PRINT
+						printf("About to check Move 3\n");
+						printf("idx: %d, N_k: %d\n",idx,N_k);
+#endif
+						if(idx>2*N_k) {
+							int temp = new_polish[idx];
+							new_polish[idx] = new_polish[idx+1];
+							new_polish[idx+1] = temp;
+#ifdef PRINT
+							printf("idx: %d\n",idx);
+							printf("I did Move 3\n");
+#endif
+
+#ifdef DEBUG
+			printf("** M3 **\n");
+#endif
+							break;
+						}
+						idx++;
+					}
+					else{idx++;}
+				}
+				else {idx++;}//it was horizontal move so we make it vertical
+			}
+			else{idx++;}//it was vertical move so we make it horizontal
+		}
 		break;
 	}
 

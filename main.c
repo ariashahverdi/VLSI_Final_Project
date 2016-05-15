@@ -67,7 +67,7 @@ void main(int argc , char* argv[])
 	int cnt_fail = 0;
 
 #ifdef PRINT
-	iter = 10;
+	iter = 100;
 	init_temp = 1;
 #endif
 
@@ -75,6 +75,10 @@ void main(int argc , char* argv[])
 	while(init_temp > 0){
 
 		for(i=0; i<iter; i++){
+
+#ifdef DEBUG
+			printf("** 1 **\n");
+#endif
 
 #ifdef PRINT
 			printf("\n\n**** Next Iteration ****\n");
@@ -87,14 +91,23 @@ void main(int argc , char* argv[])
 			int c;
 			print_polish(module_count, polish_exp);
 			optimal_design(module_count, cost, module_array,polish_exp);
-			printf( "Enter a Something, Not that we care tho :P");
+			printf( "Enter Something, Not That We Care Tho :P");
 			c = getchar( );
 #endif
-		polish_exp_new = smart_move(module_count, polish_exp);
+#ifdef DEBUG
+			printf("** 2 **\n");
+#endif
+
+			polish_exp_new = smart_move(module_count, polish_exp);
+			optimal_design2(module_count, cost, module_array,polish_exp_new);
+
+#ifdef DEBUG
+			printf("** 3 **\n");
+#endif
 #ifdef PRINT
 		print_polish(module_count, polish_exp_new);
 		optimal_design2(module_count, cost, module_array,polish_exp_new);
-		printf( "Enter a Something, Not that we care tho :P");
+		printf( "Enter Something, Not That We Care Tho :P");
 		c = getchar( );
 #endif
 
@@ -106,8 +119,18 @@ void main(int argc , char* argv[])
 			cnt_fail = 0;
 		}
 
+#ifdef DEBUG
+			printf("** 4 **\n");
+#endif
+
 		cost_new = sizing_slicing(module_array, polish_exp_new,module_count);
+
+#ifdef DEBUG
+			printf("** 5 **\n");
+#endif
+
 		delta_area = cost_new.area - cost.area;
+
 
 		float fin_lambda = (cost.area-total_size)/total_size;
 
@@ -119,9 +142,14 @@ void main(int argc , char* argv[])
 #endif
 			optimal_design(module_count, cost, module_array,polish_exp_new);
 			cur_temp = get_temp(7, argv_hotspot);
-#ifdef PRINT
+#ifdef PROGRESS
 			printf("Maximum Temperature: %f\n\n", cur_temp);
 #endif
+
+#ifdef DEBUG
+			printf("** 6 **\n");
+#endif
+
 			cnt = 0;
 		}
 
