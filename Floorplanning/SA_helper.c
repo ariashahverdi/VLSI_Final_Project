@@ -80,7 +80,7 @@ int * smart_move(int module_count,int *polish_exp)
 	int vertical, horizontal;
 	vertical = module_count + 1;
 	horizontal = module_count + 2;
-	int move_num = rand()%3;
+	int move_num = rand()%2;
 	int idx = rand()%(2*module_count-1);
 	int idx1, idx2;
 	idx1 = idx;
@@ -134,33 +134,64 @@ int * smart_move(int module_count,int *polish_exp)
 			loop_check++;
 			if(loop_check>2*module_count) break;
 			///////////////////////////////////////
-			idx = idx%(2*module_count-1);
-			loop_check++;
-			if(loop_check>2*module_count) break;
-			if(new_polish[idx] != vertical){
-				if(new_polish[idx] != horizontal){idx++;} //just a number
+			idx1 = idx1%(2*module_count-1);
+			if(new_polish[idx1] != vertical){
+				if(new_polish[idx1] != horizontal){idx1++;} //just a number
 				else {//it was horizontal move so we make it vertical
-					if(new_polish[idx+1] == vertical){
-						new_polish[idx] = vertical;
-						new_polish[idx+1] = horizontal;
-						break;
+					idx2 = idx1;
+					while(1){
+						if (idx1-1 >= 0){
+							if( (new_polish[idx1-1] != new_polish[idx1]) && (new_polish[idx1-1] == horizontal ||new_polish[idx1-1] == vertical))
+								idx1--;
+							else {break;}
+						}
+						else {break;}
 					}
-					idx++;
+					while(1){
+						if (idx2+1 != 2*module_count -1){
+							if( (new_polish[idx2+1] != new_polish[idx2]) && (new_polish[idx2+1] == horizontal ||new_polish[idx2+1] == vertical))
+								idx2++;
+							else {break;}
+						}
+						else {break;}
+					}
+					for(i=idx1;i<=idx2;i++){
+						if(new_polish[i] == vertical) new_polish[i] = horizontal;
+						else if(new_polish[i] == horizontal) new_polish[i] = vertical;
+					}
+					break;
 				}
 			}
 			else{ //it was vertical move so we make it horizontal
-				if(new_polish[idx+1] == vertical){
-					new_polish[idx] = horizontal;
-					new_polish[idx+1] = vertical;
-					break;
+				idx2 = idx1;
+				while(1){
+					if (idx1-1 >= 0){
+						if( (new_polish[idx1-1] != new_polish[idx1]) && (new_polish[idx1-1] == horizontal ||new_polish[idx1-1] == vertical))
+							idx1--;
+						else {break;}
+					}
+					else {break;}
 				}
-				idx++;
+				while(1){
+					if (idx2+1 != 2*module_count -1){
+						if( (new_polish[idx2+1] != new_polish[idx2]) && (new_polish[idx2+1] == horizontal ||new_polish[idx2+1] == vertical))
+							idx2++;
+						else {break;}
+					}
+					else {break;}
+				}
+				for(i=idx1;i<=idx2;i++){
+					if(new_polish[i] == vertical) new_polish[i] = horizontal;
+					else if(new_polish[i] == horizontal) new_polish[i] = vertical;
+				}
+				break;
 			}
 		}
 
 #ifdef PRINT
-		printf("idx: %d\n",idx);
+		printf("idx1: %d, idx2 : %d\n",idx1,idx2);
 		printf("I did Move 2\n");
+		print_polish(10, new_polish);
 #endif
 
 #ifdef DEBUG

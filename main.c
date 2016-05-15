@@ -65,6 +65,7 @@ void main(int argc , char* argv[])
 	int iter = 80;
 	int cnt = 0;
 	int cnt_fail = 0;
+	float fin_lambda;
 
 #ifdef PRINT
 	iter = 100;
@@ -98,7 +99,10 @@ void main(int argc , char* argv[])
 			printf("** 2 **\n");
 #endif
 
-			polish_exp_new = smart_move(module_count, polish_exp);
+			if(fin_lambda < lambda + 0.05){
+				polish_exp_new = smart_move(module_count, polish_exp);
+			}
+			polish_exp_new = getRandom(module_count);
 			optimal_design2(module_count, cost, module_array,polish_exp_new);
 
 #ifdef DEBUG
@@ -111,11 +115,12 @@ void main(int argc , char* argv[])
 		c = getchar( );
 #endif
 
-		if(cnt_fail > 100000){
+		if(cnt_fail > 50000){
 #ifdef PROGRESS
 			printf("Random Move\n");
 #endif
 			polish_exp_new = getRandom(module_count);
+			polish_exp = polish_exp_new;
 			cnt_fail = 0;
 		}
 
@@ -132,7 +137,7 @@ void main(int argc , char* argv[])
 		delta_area = cost_new.area - cost.area;
 
 
-		float fin_lambda = (cost.area-total_size)/total_size;
+		fin_lambda = (cost.area-total_size)/total_size;
 
 
 		cnt++;
@@ -140,8 +145,8 @@ void main(int argc , char* argv[])
 #ifdef PROGRESS
 			printf("size: %f, lambda: %f\n",cost.area, fin_lambda);
 #endif
-			optimal_design(module_count, cost, module_array,polish_exp_new);
-			cur_temp = get_temp(7, argv_hotspot);
+			optimal_design(module_count, cost, module_array,polish_exp);
+			//cur_temp = get_temp(7, argv_hotspot);
 #ifdef PROGRESS
 			printf("Maximum Temperature: %f\n\n", cur_temp);
 #endif
@@ -162,6 +167,7 @@ void main(int argc , char* argv[])
 		/*If new cost is small */
 		if(delta_area < 0){
 			//free(polish_exp);
+			fin_lambda = (cost.area-total_size)/total_size;
 			polish_exp = polish_exp_new;
 			cost = cost_new;
 		}
@@ -183,7 +189,7 @@ void main(int argc , char* argv[])
 	/* SA algorith finish */
 	//printf("\ncost after SA\n");
 	printf("\ncost.area = %f\n", cost.area);
-	float fin_lambda = (cost.area-total_size)/total_size;
+	fin_lambda = (cost.area-total_size)/total_size;
 	printf("\nFinal Lambda = %f", fin_lambda);
 
 	temp_modules = cost.final_modules;
