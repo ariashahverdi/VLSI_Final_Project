@@ -2,9 +2,11 @@
 #include<stdlib.h>
 #include<string.h>
 
+#define MOVE 3
+
 //#define PRINT
-#define PROGRESS
-//#define DEBUG
+//#define PROGRESS
+#define DEBUG
 
 /* link list to hold different sizes of same module*/
 struct module_dim{
@@ -51,6 +53,7 @@ struct small_size{
 
 
 /* helper routing for SA algorithm */
+int * init_polish(int module_count);
 void print_polish(int num, int * polish);
 int *getRandom(int module_count);
 int *smart_move(int module_count, int *polish_exp);
@@ -59,8 +62,10 @@ void sort_h(struct slicing_cntr *slice_cntr);
 struct small_size get_small_size(struct small_size *small_size_head);
 struct cost sizing_slicing(struct module_dim **module_array, int *polish_array, int module_count);
 int parse_design(char *filename, struct module_dim ***module_array, float * lambda,float * total_size);
-int optimal_design(int module_count, struct cost cost, struct module_dim **module_array, int *polish_exp);
+
+float get_area(int module_count, struct cost cost, struct module_dim **module_array, int *polish_exp);
 int optimal_design2(int module_count, struct cost cost, struct module_dim **module_array, int *polish_exp);
-void save_optimal_design(int module_count, struct cost cost, struct module_dim **module_array, int *polish_exp);
+void save_design(int module_count, struct cost cost, struct module_dim **module_array, int *polish_exp);
+
 void print_design(int module_count,struct cost cost,struct module_dim **module_array);
 
