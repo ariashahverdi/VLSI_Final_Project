@@ -557,7 +557,7 @@ void print_design(int module_count,struct module_dim **module_array)
 		temp_module = module_array[i];
 		while(temp_module != NULL){
 
-				printf("%d:\t%f %f\t %f %f \n",i, temp_module->w, temp_module->h, temp_module->x_axis, temp_module->y_axis);
+				//printf("%d:\t%f %f\t %f %f \n",i, temp_module->w, temp_module->h, temp_module->x_axis, temp_module->y_axis);
 				sprintf(buf[i],"%d\t%f\t%f\t%f\t%f\n",i+1, temp_module->w, temp_module->h, temp_module->x_axis, temp_module->y_axis);
 			temp_module = temp_module->next;
 		}

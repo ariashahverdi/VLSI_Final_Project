@@ -31,8 +31,10 @@ void main(int argc , char* argv[])
 	double accept = 9.0;
 
 	//Calling Hotspot
-	char *argv_hotspot[5]={
+	char *argv_hotspot[7]={
         "./hotspot",
+		"-c",
+		"../HotSpot-5.02/hotspot.config",
         "-f",
         "../data/ev6.flp",
         "-p",
@@ -62,9 +64,10 @@ void main(int argc , char* argv[])
 
 		for(i=0; i<80; i++){
 
-        //polish_exp_new = getRandom(module_count);
-		polish_exp_new = smart_move(module_count, polish_exp);
-		area_new = optimal_design(module_count, module_array, polish_exp_new);
+        polish_exp_new = getRandom(module_count);
+		//polish_exp_new = smart_move(module_count, polish_exp);
+
+        area_new = optimal_design(module_count, module_array, polish_exp_new);
 		lambda_new = (area_new-total_size)/total_size;
 		delta_area = area_new - area;
 		/* generates random values between 0.1 and 0.9*/
@@ -75,8 +78,11 @@ void main(int argc , char* argv[])
 
 		cnt++;
 		if(cnt==10000){
-			printf("size: %f, lambda: %f\n",area_new,lambda_new);
+			if(area_new != 0)
+			printf("size: %f, lambda: %f, total_size: %f\n",area_new,lambda_new,total_size);
 			print_design(module_count,module_array);
+			cur_temp = get_temp(7, argv_hotspot);
+			//printf("\nMaximum Temperature: %f\n", cur_temp);
 			cnt = 0;
 		}
 
