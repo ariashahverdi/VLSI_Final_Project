@@ -1011,18 +1011,18 @@ int check_for_overlap(int module_count, struct module_dim **module_array, float 
 			temp_module2 = module_array[j];
 			if((temp_module1 -> x_axis >= temp_module2 -> x_axis + temp_module2->w) || (temp_module2 -> x_axis >= temp_module1 -> x_axis + temp_module1->w))
 				{
-				if (lambda < 0.2) printf("%d and %d are hortizontaly ok!\n",i,j);
+				//if (lambda < 0.2) printf("%d and %d are hortizontaly ok!\n",i,j);
 				continue;
 				}
 			else if((temp_module1 -> y_axis >= temp_module2 -> y_axis + temp_module2->h) || (temp_module2 -> y_axis >= temp_module1 -> y_axis + temp_module1->h))
 				{
-				if (lambda < 0.2) printf("%d and %d are verticaly ok!\n",i,j);
+				//if (lambda < 0.2) printf("%d and %d are verticaly ok!\n",i,j);
 				continue;
 				}
 			else {
-				printf("%d and %d are not OK!\n",i,j);
-				save_design_ev6(module_count, module_array, polish);
-				exit(1);
+				//printf("%d and %d are not OK!\n",i,j);
+				//save_design_ev6(module_count, module_array, polish);
+				//exit(1);
 
 				return 0;}
 		}

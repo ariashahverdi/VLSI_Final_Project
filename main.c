@@ -30,15 +30,13 @@ void main(int argc , char* argv[])
 	float delta_area;
 	int random;
 	double param_exp;
-	double min_temp = 370;
 
 	int done;
 	int move_select = rand()%MOVE;
 	float my_area;
-    int flag = 1;
-	int iter = 1000;
-	float fin_lambda;
 
+	float best_temp = 1000;
+	float cur_temp;
 
 	//Calling Hotspot
 	char *argv_hotspot[7]={
@@ -49,7 +47,6 @@ void main(int argc , char* argv[])
         "../data/ev6.flp",
         "-p",
         "../data/gcc.ptrace"};
-    float cur_temp;
 
 	/*pseudo-random number generator is initialized using time feed*/
 	srand( (unsigned)time( NULL ) );
@@ -62,8 +59,8 @@ void main(int argc , char* argv[])
 	horizontal = module_count + 2;
 
 	/*random polish expression generator*/
-	polish_exp = getRandom(module_count);
-	//polish_exp = init_polish(module_count);
+	//polish_exp = getRandom(module_count);
+	polish_exp = init_polish(module_count);
 	best_polish = polish_exp;
 	my_area = get_area(module_count, module_array,polish_exp);
     cost.area = my_area;;
@@ -79,6 +76,7 @@ void main(int argc , char* argv[])
 	int k = 10000;
 	int n = 2*module_count-1;
 	int N = k * n;
+	int r_cnt = 0;
 
 	float best_lambda = 1;
 	float cur_lambda;
@@ -109,10 +107,16 @@ void main(int argc , char* argv[])
 			printf("** 2 **\n");
 #endif
 
+			if (r_cnt > 10000){
+				r_cnt = 0;
+				polish_exp = init_polish(module_count);
+			}
+			r_cnt++;
+
 			//no need for slides algorithm since the smart_move does it
 			move_select = rand()%MOVE;
-			//polish_exp_new = smart_move(module_count, polish_exp,move_select, &done);
-			polish_exp_new = getRandom(module_count);
+			polish_exp_new = smart_move(module_count, polish_exp,move_select, &done);
+			//polish_exp_new = getRandom(module_count);
 			MT++;
 			cost_new.area = get_area(module_count, module_array,polish_exp_new);
 			cost.area = get_area(module_count, module_array,polish_exp);
@@ -151,9 +155,13 @@ void main(int argc , char* argv[])
             	if(cur_lambda < best_lambda && cur_lambda > 0 && check_for_overlap(module_count, module_array, cur_lambda, polish_exp_new)) {
             		//printf("A design is saved %d\n",check_for_overlap(module_count, module_array, cur_lambda));
             		polish_exp = polish_exp_new;
-            		best_lambda = cur_lambda;
-            		best_polish = polish_exp;
-            		save_design_ev6(module_count, module_array, best_polish);
+            		save_design_ev6(module_count, module_array, polish_exp);
+            		cur_temp = get_temp(7, argv_hotspot);
+            		if(cur_temp < best_temp){
+            			best_lambda = cur_lambda;
+            			best_temp = cur_temp;
+            			best_polish = polish_exp;
+            		}
             	}
             }
             else {reject++;}
