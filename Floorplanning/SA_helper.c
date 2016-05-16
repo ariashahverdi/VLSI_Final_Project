@@ -74,6 +74,7 @@ void print_polish(int module_count, int * polish_exp){
     printf("\n");
 }
 
+
 int * init_polish(int module_count){
 	int * new_polish;
 	int i;
@@ -82,10 +83,25 @@ int * init_polish(int module_count){
 	new_polish = (int*)malloc(((module_count * 2) - 1) * sizeof(int));
 	int zero_cnt = 0;
 	int one_cnt = 0;
-	int place_this = 1;
+
+	int idx;
+	int flag[100], cand_idx[100];
+	for(i=0;i<module_count;i++) flag[i] = 1;
+	for(i=0;i<module_count;i++) {
+		idx = rand()%module_count;
+		while(flag[idx] == 0) idx=(idx+1)%module_count;
+		flag[idx] = 0;
+		cand_idx[i] = idx+1;
+#ifdef PRINT
+		printf("idx: %d \n", idx);
+#endif
+	}
+
+
+	int place_this = 0;
 	for(i=0;i<2*module_count-1;i++){
 		if(zero_cnt+1 >= one_cnt) {
-			new_polish[i] = place_this;
+			new_polish[i] = cand_idx[place_this];
 			place_this++;
 			one_cnt++;
 		}
@@ -102,7 +118,7 @@ int * init_polish(int module_count){
                 }
 			}
 			else{
-				new_polish[i] = place_this;
+				new_polish[i] = cand_idx[place_this];
 				place_this++;
 				one_cnt++;
 			}
@@ -111,8 +127,7 @@ int * init_polish(int module_count){
 	return new_polish;
 }
 
-
-int * smart_move(int module_count,int *polish_exp)
+int * smart_move(int module_count,int *polish_exp,  int move, int *done)
 {
     
     int * new_polish;
@@ -121,7 +136,9 @@ int * smart_move(int module_count,int *polish_exp)
     int vertical, horizontal;
     vertical = module_count + 1;
     horizontal = module_count + 2;
-    int move_num = rand()%MOVE;
+    *done = 0;
+    //int move_num = rand()%MOVE;
+    int move_num = move;
     int idx = rand()%(2*module_count-1);
     int idx1, idx2;
     idx1 = idx;
@@ -167,6 +184,7 @@ int * smart_move(int module_count,int *polish_exp)
 #ifdef DEBUG
             printf("** M1 **\n");
 #endif
+            *done = 1;
             break;
             
         case 1: //Move2 : (Chain Invert) Complement some chain OK!
@@ -237,7 +255,7 @@ int * smart_move(int module_count,int *polish_exp)
 #ifdef DEBUG
             printf("** M2 **\n");
 #endif
-            
+            *done = 1;
             break;
             
         case 2: //Move3: (Operator/Operand Swap) Swap two adjacent operand and operator Needs to be checked!
@@ -266,6 +284,7 @@ int * smart_move(int module_count,int *polish_exp)
 #ifdef DEBUG
                                 printf("** M3 **\n");
 #endif
+                                *done = 1;
                                 break;
                             }
                             idx++;
@@ -636,7 +655,6 @@ struct cost sizing_slicing(struct module_dim **module_array, int *polish_array, 
 
 
 /* parse input design file. Extract data and store in dynamic data structure*/
-
 int parse_design(char *filename, struct module_dim ***module_array, float *lambda,float *total_size)
 {
 	FILE *fp;
@@ -698,7 +716,6 @@ int parse_design(char *filename, struct module_dim ***module_array, float *lambd
 
 	return module_count;
 }
-
 
 
 void polish_2_cord(int module_count, struct module_dim **module_array, int * polish_exp){
@@ -829,6 +846,7 @@ void polish_2_cord(int module_count, struct module_dim **module_array, int * pol
     
 }
 
+
 /* generats optimal design output file */
 float get_area(int module_count, struct module_dim **module_array, int *polish_exp)
 {
@@ -895,6 +913,7 @@ void save_design(int module_count, struct module_dim **module_array, int *polish
 	fclose(fp);
 }
 
+
 /*
 void print_design(int module_count,struct cost cost,struct module_dim **module_array)
 {
@@ -915,6 +934,7 @@ void print_design(int module_count,struct cost cost,struct module_dim **module_a
 
 }
  */
+
 
 void save_design_ev6(int module_count, struct module_dim **module_array, int *polish_exp)
 {
@@ -945,6 +965,7 @@ void save_design_ev6(int module_count, struct module_dim **module_array, int *po
     fclose(fp);
     
 }
+
 
 void save_design_ev7(int module_count, struct module_dim **module_array, int *polish_exp)
 {
@@ -977,5 +998,36 @@ void save_design_ev7(int module_count, struct module_dim **module_array, int *po
 
 }
 
+
+int check_for_overlap(int module_count, struct module_dim **module_array, float lambda, int * polish){
+	int i,j;
+	struct module_dim *temp_module1;
+	struct module_dim *temp_module2;
+	int flag =0;
+
+	for(i=0; i<module_count; i++){
+		temp_module1 = module_array[i];
+		for(j=i+1; j<module_count; j++){
+			temp_module2 = module_array[j];
+			if((temp_module1 -> x_axis >= temp_module2 -> x_axis + temp_module2->w) || (temp_module2 -> x_axis >= temp_module1 -> x_axis + temp_module1->w))
+				{
+				if (lambda < 0.2) printf("%d and %d are hortizontaly ok!\n",i,j);
+				continue;
+				}
+			else if((temp_module1 -> y_axis >= temp_module2 -> y_axis + temp_module2->h) || (temp_module2 -> y_axis >= temp_module1 -> y_axis + temp_module1->h))
+				{
+				if (lambda < 0.2) printf("%d and %d are verticaly ok!\n",i,j);
+				continue;
+				}
+			else {
+				printf("%d and %d are not OK!\n",i,j);
+				save_design_ev6(module_count, module_array, polish);
+				exit(1);
+
+				return 0;}
+		}
+	}
+	return 1;
+}
 
 
