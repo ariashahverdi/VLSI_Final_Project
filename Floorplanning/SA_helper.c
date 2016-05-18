@@ -68,7 +68,7 @@ void print_polish(int module_count, int * polish_exp){
     int horizontal = module_count + 2;
     for(i=0;i<2*module_count-1;i++){
         if(polish_exp[i] == vertical) printf(" V ");
-        else if(polish_exp[i] == horizontal) printf(" H ");
+        else if(polish_exp[i] == horizontal) printf(" H ",i+1);
         else printf(" %d ", polish_exp[i]);
     }
     printf("\n");
@@ -87,8 +87,9 @@ int * init_polish(int module_count){
 	int idx;
 	int flag[100], cand_idx[100];
 	for(i=0;i<module_count;i++) flag[i] = 1;
+
 	for(i=0;i<module_count;i++) {
-		idx = rand()%module_count;
+		idx = (rand()%module_count);
 		while(flag[idx] == 0) idx=(idx+1)%module_count;
 		flag[idx] = 0;
 		cand_idx[i] = idx+1;
@@ -98,7 +99,19 @@ int * init_polish(int module_count){
 	}
 
 
+	/*
+	for(i=0;i<module_count-5;i++) {cand_idx[i] = i+5;}
+	cand_idx[25] = 5;
+	cand_idx[26] = 4;
+	cand_idx[27] = 3;
+	cand_idx[28] = 1;
+	cand_idx[29] = 2;
+	 */
+
+
+
 	int place_this = 0;
+	//*//Balanced
 	for(i=0;i<2*module_count-1;i++){
 		if(zero_cnt+1 >= one_cnt) {
 			new_polish[i] = cand_idx[place_this];
@@ -124,6 +137,31 @@ int * init_polish(int module_count){
 			}
 		}
 	}
+	//*/
+
+	/*// Non Balanced Polish
+	for(i=0;i<2*module_count-1;i++){
+		if(zero_cnt+1 >= one_cnt) {
+			new_polish[i] = cand_idx[place_this];
+			place_this++;
+			one_cnt++;
+		}
+		else{
+			int selection = rand()%2;
+			if(selection == 0 || one_cnt == module_count){
+				zero_cnt++;
+                int rot = rand()%2;
+                if(rot == 0) new_polish[i] = vertical;
+                else new_polish[i] = horizontal;
+			}
+			else{
+				new_polish[i] = cand_idx[place_this];
+				place_this++;
+				one_cnt++;
+			}
+		}
+	}
+	*/
 	return new_polish;
 }
 
@@ -272,7 +310,7 @@ int * smart_move(int module_count,int *polish_exp,  int move, int *done)
                             for(i=0;i<=idx+1;i++){
                                 if(new_polish[i] == horizontal || new_polish[i] == vertical){Nk++;}
                             }
-                            if(idx+1>2*Nk && new_polish[idx-1] != new_polish[idx+1]) {//since it's from zero!!
+                            if(idx+1>2*Nk /*&& new_polish[idx-1] != new_polish[idx+1]*/) {//since it's from zero!!
                                 int temp = new_polish[idx];
                                 new_polish[idx] = new_polish[idx+1];
                                 new_polish[idx+1] = temp;
@@ -720,18 +758,33 @@ int parse_design(char *filename, struct module_dim ***module_array, float *lambd
 
 void polish_2_cord(int module_count, struct module_dim **module_array, int * polish_exp){
 
+
     int i;
     struct module_dim *temp_module;
-    int vertical, horizontal;
+    int my_vertical, my_horizontal;
     int saved_polish [2*module_count-1];
+
+
+
     for(i=0; i<(2*module_count-1); i++){saved_polish[i] = polish_exp[i];}
-    vertical = module_count + 1;
-    horizontal = module_count + 2;
-    
+    my_vertical = module_count + 1;
+    my_horizontal = module_count + 2;
+
+    int vertical = -1;
+    int horizontal = -2;
+
+    for(i=0; i<(2*module_count-1); i++){
+    	if (polish_exp[i] == my_vertical) polish_exp[i] = vertical;
+    	if (polish_exp[i] == my_horizontal) polish_exp[i] = horizontal;
+    }
+
+
+
     // Change Polish to Axes
     float width[2*module_count-2];
     float height[2*module_count-2];
     int next[2*module_count-1];
+
     
     for(i=0; i<(2*module_count-1); i++){
         next[i] = i+1;
@@ -758,6 +811,7 @@ void polish_2_cord(int module_count, struct module_dim **module_array, int * pol
     int next_2;
     float w1,w2,h1,h2;
     
+
     while(next[cur]!= -1){
         next_1 = next[cur];
         next_2 = next[next_1];
@@ -889,6 +943,7 @@ float get_area(int module_count, struct module_dim **module_array, int *polish_e
 
 
 /* generats optimal design output file */
+/*
 void save_design(int module_count, struct module_dim **module_array, int *polish_exp)
 {
 	FILE *fp;
@@ -912,7 +967,7 @@ void save_design(int module_count, struct module_dim **module_array, int *polish
 	}
 	fclose(fp);
 }
-
+*/
 
 /*
 void print_design(int module_count,struct cost cost,struct module_dim **module_array)
@@ -949,7 +1004,7 @@ void save_design_ev6(int module_count, struct module_dim **module_array, int *po
         exit(1);
     }
     
-    polish_2_cord(module_count, module_array, polish_exp);
+    //polish_2_cord(module_count, module_array, polish_exp);
     
     //head = cost.final_modules;
     
@@ -1003,28 +1058,59 @@ int check_for_overlap(int module_count, struct module_dim **module_array, float 
 	int i,j;
 	struct module_dim *temp_module1;
 	struct module_dim *temp_module2;
-	int flag =0;
+
 
 	for(i=0; i<module_count; i++){
 		temp_module1 = module_array[i];
 		for(j=i+1; j<module_count; j++){
 			temp_module2 = module_array[j];
-			if((temp_module1 -> x_axis >= temp_module2 -> x_axis + temp_module2->w) || (temp_module2 -> x_axis >= temp_module1 -> x_axis + temp_module1->w))
+
+			float ax1,ax2,bx1,bx2,ay1,ay2,by1,by2;
+			ax1 = temp_module1 -> x_axis;
+			ax2 = temp_module1 -> x_axis + temp_module1 -> w;
+			bx1 = temp_module2 -> x_axis;
+			bx2 = temp_module2 -> x_axis + temp_module2 -> w;
+
+			ay1 = temp_module1 -> y_axis;
+			ay2 = temp_module1 -> y_axis + temp_module1 -> h;
+			by1 = temp_module2 -> y_axis;
+			by2 = temp_module2 -> y_axis + temp_module2 -> h;
+
+
+			if(((temp_module1 -> x_axis >= temp_module2 -> x_axis + temp_module2->w) || (temp_module2 -> x_axis >= temp_module1 -> x_axis + temp_module1->w)))
 				{
-				//if (lambda < 0.2) printf("%d and %d are hortizontaly ok!\n",i,j);
+				//printf("i: %d, j: %d\n", i+1,j+1);
 				continue;
 				}
-			else if((temp_module1 -> y_axis >= temp_module2 -> y_axis + temp_module2->h) || (temp_module2 -> y_axis >= temp_module1 -> y_axis + temp_module1->h))
+			else if(((temp_module1 -> y_axis >= temp_module2 -> y_axis + temp_module2->h) || (temp_module2 -> y_axis >= temp_module1 -> y_axis + temp_module1->h)))
 				{
-				//if (lambda < 0.2) printf("%d and %d are verticaly ok!\n",i,j);
+				//printf("i: %d, j: %d\n", i+1,j+1);
 				continue;
 				}
-			else {
+			else  {
 				//printf("%d and %d are not OK!\n",i,j);
 				//save_design_ev6(module_count, module_array, polish);
 				//exit(1);
 
+				printf("ax1: %f, bx1: %f\n", ax1, bx1);
+				printf("ay1: %f, by1: %f\n", by1, by1);
+				printf("ax2: %f, bx2: %f\n", ax2, bx2);
+				printf("ay2: %f, by2: %f\n", by2, by2);
+				printf("i: %d, j: %d\n", i+1,j+1);
+				print_polish(module_count,polish);
 				return 0;}
+
+
+/*
+			if  ( ((ax1<bx1 && bx1<ax2) || (bx1<ax1 && ax1<bx2)) && ((ay1<by1 && by1<ay2) || (by1<ay1 && ay1<by2)) )
+				//exit(1);
+				{printf("i: %d, j: %d (1)\n", i+1,j+1);
+				return 0;}
+			if( ax1==bx1 && ax2==bx2 && ay1==by1 && ay2==by2 )
+				//exit(1);
+				{printf("i: %d, j: %d(2)\n", i+1,j+1);
+				return 0;}
+*/
 		}
 	}
 	return 1;

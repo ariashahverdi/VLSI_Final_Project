@@ -8,6 +8,8 @@
 #define PROGRESS
 //#define DEBUG
 
+#define BALANCED_POLISH
+
 /* link list to hold different sizes of same module*/
 struct module_dim{
 	float w;
@@ -65,7 +67,7 @@ int parse_design(char *filename, struct module_dim ***module_array, float * lamb
 void polish_2_cord(int module_count,struct module_dim **module_array, int * polish_exp);
 
 float get_area(int module_count, struct module_dim **module_array, int *polish_exp);
-void save_design(int module_count, struct module_dim **module_array, int *polish_exp);
+//void save_design(int module_count, struct module_dim **module_array, int *polish_exp);
 //void print_design(int module_count,struct cost cost,struct module_dim **module_array);
 int check_for_overlap(int module_count, struct module_dim **module_array, float lambda, int * polish);
 
