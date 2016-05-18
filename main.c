@@ -123,10 +123,8 @@ void main(int argc , char* argv[])
 			cost_new.area = get_area(module_count, module_array,polish_exp_new);
 			cur_lambda = (cost_new.area-total_size)/total_size;
 			cost.area = get_area(module_count, module_array,polish_exp);
-
 			delta_area = cost_new.area - cost.area;
-			//if(check_for_overlap(module_count, module_array, cur_lambda, polish_exp_new)) delta_area = cost_new.area - cost.area;
-			//else{delta_area = 1;}
+
 
 #ifdef DEBUG
 			printf("** 3 **\n");

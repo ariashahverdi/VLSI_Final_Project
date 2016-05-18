@@ -18,10 +18,10 @@ ColList='ymcrgb'; %no w letter because you won't see the white line
     
 for i = 1:30
    col=randi([1 6]);
-   h = rectangle('Position',B(:,i));
+   h = rectangle('Position',B(:,i),'FaceColor',ColList(col));
    txt1 = num2str(i);
    text(B(1,i)+(B(3,i)/2),B(2,i)+(B(4,i)/2),txt1)
-   %axis([0 0.04 0 0.04])
+   axis([0 0.035 0 0.01])
 end
 
 fclose(fileID);
