@@ -3,6 +3,7 @@
 #include<string.h>
 
 #define MOVE 3
+#define MAX_NUM 100
 
 //#define PRINT
 #define PROGRESS

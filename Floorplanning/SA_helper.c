@@ -2,7 +2,7 @@
 
 
 /*  generats a random polish expression. to have a equal probability for vertical  *
- *  and horizontal section, number space selected double of the module number.	   *
+ *  and horizontal section, number space selected float of the module number.	   *
  *  second half of the number space divided equally between H and V	           */
 int * getRandom(int module_count)
 {
@@ -717,7 +717,7 @@ int parse_design(char *filename, struct module_dim ***module_array, float *lambd
         fscanf(fp, "%f %f %f\n", &W, &H, &P);
         temp_size += W*H;
         power[module_no-1] = P;
-        //printf("%f %f %f\n", W, H, P);
+        printf("%f %f %f\n", W, H, P);
 
         temp_module = (struct module_dim*)malloc(sizeof(struct module_dim));
 		*module_array_temp = temp_module;
@@ -758,15 +758,12 @@ int parse_design(char *filename, struct module_dim ***module_array, float *lambd
 
 void polish_2_cord(int module_count, struct module_dim **module_array, int * polish_exp){
 
-
     int i;
     struct module_dim *temp_module;
     int my_vertical, my_horizontal;
-    int saved_polish [2*module_count-1];
-
-
-
+    int saved_polish [MAX_NUM];
     for(i=0; i<(2*module_count-1); i++){saved_polish[i] = polish_exp[i];}
+
     my_vertical = module_count + 1;
     my_horizontal = module_count + 2;
 
@@ -778,12 +775,10 @@ void polish_2_cord(int module_count, struct module_dim **module_array, int * pol
     	if (polish_exp[i] == my_horizontal) polish_exp[i] = horizontal;
     }
 
-
-
     // Change Polish to Axes
-    float width[2*module_count-2];
-    float height[2*module_count-2];
-    int next[2*module_count-1];
+    float width[MAX_NUM];
+    float height[MAX_NUM];
+    int next[MAX_NUM];
 
     
     for(i=0; i<(2*module_count-1); i++){
@@ -794,15 +789,14 @@ void polish_2_cord(int module_count, struct module_dim **module_array, int * pol
             height[polish_exp[i]-1] = temp_module->h;
         }
     }
-    
     next[2*module_count-2] = -1;
     
-    int new_node[2*module_count-1];
-    int first_node[2*module_count-1];
-    int second_node[2*module_count-1];
-    int operator_vh[2*module_count-1];
-    float x_axis[2*module_count-1];
-    float y_axis[2*module_count-1];
+    int new_node[MAX_NUM];
+    int first_node[MAX_NUM];
+    int second_node[MAX_NUM];
+    int operator_vh[MAX_NUM];
+    float x_axis[MAX_NUM];
+    float y_axis[MAX_NUM];
     
     int nodectr = module_count;
     int stackptr=0;
@@ -891,7 +885,7 @@ void polish_2_cord(int module_count, struct module_dim **module_array, int * pol
     }
     
     for(i=0; i<(2*module_count-1); i++){polish_exp[i] = saved_polish[i];}
-    
+
     for(i=0; i<module_count; i++){
         temp_module = module_array[i];
         temp_module->x_axis = x_axis[i];
@@ -949,7 +943,7 @@ void save_design(int module_count, struct module_dim **module_array, int *polish
 	FILE *fp;
 	int i;
     struct module_dim *temp_module;
-	char buf[module_count][100];
+	char buf[MAX_NUM][100];
 
 	if((fp = fopen("../data/ev6.flp","w")) == NULL){
 		printf("\nCould not create out_design.flp file!\n");
@@ -996,7 +990,7 @@ void save_design_ev6(int module_count, struct module_dim **module_array, int *po
     FILE *fp;
     int i;
     struct module_dim *temp_module;
-    char buf[module_count][100];
+    char buf[MAX_NUM][100];
 
     
     if((fp = fopen("../data/ev6.flp","w")) == NULL){
@@ -1027,7 +1021,7 @@ void save_design_ev7(int module_count, struct module_dim **module_array, int *po
 	FILE *fp;
 	int i;
 	struct module_dim *temp_module;
-	char buf[module_count][100];
+	char buf[MAX_NUM][100];
 
 
 	if((fp = fopen("../data/ev7.flp","w")) == NULL){
@@ -1053,6 +1047,11 @@ void save_design_ev7(int module_count, struct module_dim **module_array, int *po
 
 }
 
+double trunc(double d)
+{
+    return (d>0) ? floor(d) : ceil(d) ;
+}
+
 
 int check_for_overlap(int module_count, struct module_dim **module_array, float lambda, int * polish){
 	int i,j;
@@ -1076,7 +1075,7 @@ int check_for_overlap(int module_count, struct module_dim **module_array, float 
 			by1 = temp_module2 -> y_axis;
 			by2 = temp_module2 -> y_axis + temp_module2 -> h;
 
-
+/*
 			if(((temp_module1 -> x_axis >= temp_module2 -> x_axis + temp_module2->w) || (temp_module2 -> x_axis >= temp_module1 -> x_axis + temp_module1->w)))
 				{
 				//printf("i: %d, j: %d\n", i+1,j+1);
@@ -1092,25 +1091,69 @@ int check_for_overlap(int module_count, struct module_dim **module_array, float 
 				//save_design_ev6(module_count, module_array, polish);
 				//exit(1);
 
-				printf("ax1: %f, bx1: %f\n", ax1, bx1);
-				printf("ay1: %f, by1: %f\n", by1, by1);
-				printf("ax2: %f, bx2: %f\n", ax2, bx2);
-				printf("ay2: %f, by2: %f\n", by2, by2);
+				printf("ax1: %f, ax2: %f\n", ax1, ax2);
+				printf("ay1: %f, ay2: %f\n", ay1, ay2);
+				printf("bx1: %f, bx2: %f\n", bx1, bx2);
+				printf("by1: %f, by2: %f\n", by1, by2);
 				printf("i: %d, j: %d\n", i+1,j+1);
 				print_polish(module_count,polish);
-				return 0;}
+				return 0;
+			}
 
-
+*/
 /*
 			if  ( ((ax1<bx1 && bx1<ax2) || (bx1<ax1 && ax1<bx2)) && ((ay1<by1 && by1<ay2) || (by1<ay1 && ay1<by2)) )
 				//exit(1);
-				{printf("i: %d, j: %d (1)\n", i+1,j+1);
-				return 0;}
+				{
+					printf("ax1: %f, ax2: %f\n", ax1, ax2);
+					printf("ay1: %f, ay2: %f\n", ay1, ay2);
+					printf("bx1: %f, bx2: %f\n", bx1, bx2);
+					printf("by1: %f, by2: %f\n", by1, by2);
+					printf("i: %d, j: %d (1)\n", i+1,j+1);
+					return 0;
+				}
 			if( ax1==bx1 && ax2==bx2 && ay1==by1 && ay2==by2 )
 				//exit(1);
-				{printf("i: %d, j: %d(2)\n", i+1,j+1);
-				return 0;}
+				{
+					printf("ax1: %f, ax2: %f\n", ax1, ax2);
+					printf("ay1: %f, ay2: %f\n", ay1, ay2);
+					printf("bx1: %f, bx2: %f\n", bx1, bx2);
+					printf("by1: %f, by2: %f\n", by1, by2);
+					printf("i: %d, j: %d (2)\n", i+1,j+1);
+					return 0;
+				}
 */
+
+			float l1x = trunc(10000000. *temp_module1 -> x_axis);
+			float r1x = trunc(10000000. * (temp_module1 -> x_axis + temp_module1 -> w));
+			float l2x = trunc(10000000. *temp_module2 -> x_axis);
+			float r2x = trunc(10000000. *(temp_module2 -> x_axis + temp_module2 -> w));
+
+			float l1y = trunc(10000000. *(temp_module1 -> y_axis + temp_module1 -> h));
+			float r1y = trunc(10000000. *temp_module1 -> y_axis);
+			float l2y = trunc(10000000. *(temp_module2 -> y_axis + temp_module2 -> h));
+			float r2y = trunc(10000000. *temp_module2 -> y_axis);
+
+			/*
+		    if (l1x >= r2x || l2x >= r1x)
+		        continue;
+		    if (l1y <= r2y || l2y <= r1y)
+		        continue;
+			*/
+		    if (fabs(l1x - r2x) > 1 || fabs(l2x - r1x) > 1)
+		        continue;
+
+		    // If one rectangle is above other
+		    if (fabs(l1y - r2y) > 1 || fabs(l2y - r1y) > 1)
+		        continue;
+
+			printf("l1x: %lf, r1x: %lf\n", l1x, r1x);
+			printf("l1y: %lf, r1y: %lf\n", l1y, r1y);
+			printf("l2x: %lf, r2x: %lf\n", l2x, r2x);
+			printf("l2y: %lf, r2y: %lf\n", l2y, r2y);
+		    printf("i: %d, j: %d (*)\n", i+1,j+1);
+		    exit(1);
+			return 0;
 		}
 	}
 	return 1;

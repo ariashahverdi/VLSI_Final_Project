@@ -29,7 +29,7 @@ void main(int argc , char* argv[])
 	int *temp_polish;
 	float delta_area;
 	int random;
-	double param_exp;
+	float param_exp;
 
 	int done;
 	int move_select = rand()%MOVE;
@@ -37,6 +37,10 @@ void main(int argc , char* argv[])
 
 	float best_temp = 1000;
 	float cur_temp;
+
+	float a = 14.22;
+	float b = 14.220;
+	//if(a == b) { printf("I am here\n"); exit(1);}
 
 	//Calling Hotspot
 	char *argv_hotspot[7]={
@@ -60,11 +64,11 @@ void main(int argc , char* argv[])
 
 	/*random polish expression generator*/
 	//polish_exp = getRandom(module_count);
-	//polish_exp = init_polish(module_count);
-	//best_polish = polish_exp;
-	//my_area = get_area(module_count, module_array,polish_exp);
-    //cost.area = my_area;
-    //cost_best.area = my_area;
+	polish_exp = init_polish(module_count);
+	best_polish = polish_exp;
+	my_area = get_area(module_count, module_array,polish_exp);
+    cost.area = my_area;
+    cost_best.area = my_area;
     printf("size: %d, lambda: %f\n",module_count,lambda);
 
 	int M = 0;
@@ -113,25 +117,16 @@ void main(int argc , char* argv[])
 
 			//no need for slides algorithm since the smart_move does it
 			move_select = rand()%MOVE;
-			//polish_exp_new = smart_move(module_count, polish_exp,move_select, &done);
-			while(1){
-				polish_exp_new = getRandom(module_count);
-				//polish_exp_new = init_polish(module_count);
-				polish_2_cord(module_count,module_array, polish_exp_new);
-				save_design_ev6(module_count, module_array,polish_exp_new);
-				if (check_for_overlap(module_count, module_array, cur_lambda, polish_exp_new) == 0) exit(1);
-				//exit(1);
-
-			}
-
+			polish_exp_new = smart_move(module_count, polish_exp,move_select, &done);
+			//polish_exp_new = getRandom(module_count);
 			MT++;
 			cost_new.area = get_area(module_count, module_array,polish_exp_new);
 			cur_lambda = (cost_new.area-total_size)/total_size;
 			cost.area = get_area(module_count, module_array,polish_exp);
 
-			polish_2_cord(module_count,module_array, polish_exp_new);
-			if(check_for_overlap(module_count, module_array, cur_lambda, polish_exp_new)) delta_area = cost_new.area - cost.area;
-			else{delta_area = 1;}
+			delta_area = cost_new.area - cost.area;
+			//if(check_for_overlap(module_count, module_array, cur_lambda, polish_exp_new)) delta_area = cost_new.area - cost.area;
+			//else{delta_area = 1;}
 
 #ifdef DEBUG
 			printf("** 3 **\n");
@@ -156,10 +151,9 @@ void main(int argc , char* argv[])
             if(delta_area < 0 /*|| random < exp(-(param_exp))*/){
             	//free(polish_exp);
             	if(delta_area > 0) uphill++;
-            	polish_2_cord(module_count,module_array, polish_exp_new);
+            	polish_exp = polish_exp_new;
             	if(cur_lambda < lambda && cur_lambda > 0 && check_for_overlap(module_count, module_array, cur_lambda, polish_exp_new)) {
             		printf("A design is saved %d\n",check_for_overlap(module_count, module_array, cur_lambda, polish_exp_new));
-            		polish_exp = polish_exp_new;
             		save_design_ev6(module_count, module_array, polish_exp);
             		cur_temp = get_temp(7, argv_hotspot);
             		if(cur_temp < best_temp){
