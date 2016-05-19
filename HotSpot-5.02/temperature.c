@@ -625,6 +625,7 @@ void steady_state_temp(RC_model_t *model, double *power, double *temp)
 	
 	if (model->type == BLOCK_MODEL) {
 		n = model->block->flp->n_units;
+		printf("n is here : %d\n\n",n);
 		if (model->config->leakage_used) { // if considering leakage-temperature loop
 			d_temp = hotspot_vector(model);
 			temp_old = hotspot_vector(model);

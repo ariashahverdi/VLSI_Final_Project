@@ -1,4 +1,4 @@
-#include"SA_helper.h"
+#include "SA_helper.h"
 
 
 /*  generats a random polish expression. to have a equal probability for vertical  *
@@ -17,7 +17,7 @@ int * getRandom(int module_count)
         r = (int*)malloc(((module_count * 2) - 1) * sizeof(int));
         r[0] = (rand() % module_count) + 1;
         while((r[1] = (rand() % module_count) + 1) == r[0]);
-	/* start filling polish expression */
+        /* start filling polish expression */
         for(i=2; i<((2*module_count)-1); i++){
 		/* generats number accross entire number space*/
 		random_no =  (rand() % (module_count * 2)) + 1;
@@ -98,20 +98,8 @@ int * init_polish(int module_count){
 #endif
 	}
 
-
-	/*
-	for(i=0;i<module_count-5;i++) {cand_idx[i] = i+5;}
-	cand_idx[25] = 5;
-	cand_idx[26] = 4;
-	cand_idx[27] = 3;
-	cand_idx[28] = 1;
-	cand_idx[29] = 2;
-	 */
-
-
-
 	int place_this = 0;
-	//*//Balanced
+//Balanced
 	for(i=0;i<2*module_count-1;i++){
 		if(zero_cnt+1 >= one_cnt) {
 			new_polish[i] = cand_idx[place_this];
@@ -137,7 +125,6 @@ int * init_polish(int module_count){
 			}
 		}
 	}
-	//*/
 
 	/*// Non Balanced Polish
 	for(i=0;i<2*module_count-1;i++){
@@ -165,7 +152,7 @@ int * init_polish(int module_count){
 	return new_polish;
 }
 
-int * smart_move(int module_count,int *polish_exp,  int move, int *done)
+int * smart_move(int module_count,int *polish_exp,  int move)
 {
     
     int * new_polish;
@@ -174,19 +161,14 @@ int * smart_move(int module_count,int *polish_exp,  int move, int *done)
     int vertical, horizontal;
     vertical = module_count + 1;
     horizontal = module_count + 2;
-    *done = 0;
-    //int move_num = rand()%MOVE;
-    int move_num = move;
+
     int idx = rand()%(2*module_count-1);
     int idx1, idx2;
     idx1 = idx;
     int loop_check = 0;
-    //remove for original code
     
-    //printf("move is : %d, idx is : %d\n",move_num, idx);
-    //print_polish(module_count, polish_exp);
     for(i=0;i<2*module_count-1;i++){new_polish[i] = polish_exp[i];}
-    switch(move_num){
+    switch(move){
         case 0: //Move1 : (Operand Swap) Swap two adjacent operands OK!
             while(1){
                 idx1 = idx1%(2*module_count-1);
@@ -218,11 +200,9 @@ int * smart_move(int module_count,int *polish_exp,  int move, int *done)
             printf("idx1: %d, idx2 : %d\n",idx1,idx2);
             printf("I did Move 1\n");
 #endif
-            
 #ifdef DEBUG
             printf("** M1 **\n");
 #endif
-            *done = 1;
             break;
             
         case 1: //Move2 : (Chain Invert) Complement some chain OK!
@@ -289,11 +269,9 @@ int * smart_move(int module_count,int *polish_exp,  int move, int *done)
             printf("idx1: %d, idx2 : %d\n",idx1,idx2);
             printf("I did Move 2\n");
 #endif
-            
 #ifdef DEBUG
             printf("** M2 **\n");
 #endif
-            *done = 1;
             break;
             
         case 2: //Move3: (Operator/Operand Swap) Swap two adjacent operand and operator Needs to be checked!
@@ -310,7 +288,7 @@ int * smart_move(int module_count,int *polish_exp,  int move, int *done)
                             for(i=0;i<=idx+1;i++){
                                 if(new_polish[i] == horizontal || new_polish[i] == vertical){Nk++;}
                             }
-                            if(idx+1>2*Nk /*&& new_polish[idx-1] != new_polish[idx+1]*/) {//since it's from zero!!
+                            if(idx+1>2*Nk && new_polish[idx-1] != new_polish[idx+1]) {//since it's from zero!!
                                 int temp = new_polish[idx];
                                 new_polish[idx] = new_polish[idx+1];
                                 new_polish[idx+1] = temp;
@@ -318,11 +296,9 @@ int * smart_move(int module_count,int *polish_exp,  int move, int *done)
                                 printf("idx: %d\n",idx);
                                 printf("I did Move 3\n");
 #endif
-                                
 #ifdef DEBUG
                                 printf("** M3 **\n");
 #endif
-                                *done = 1;
                                 break;
                             }
                             idx++;
@@ -339,357 +315,6 @@ int * smart_move(int module_count,int *polish_exp,  int move, int *done)
     return new_polish;
 }
 
-/*sorts sizes of a given module accross their width*/
-void sort_w(struct slicing_cntr *slice_cntr)
-{
-	int didSwap = 1;
-	struct module_dim *head;
-	struct module_dim *curr;
-	struct module_dim *tail;
-	struct module_dim *temp;
-	head = slice_cntr->list;
-	while(didSwap) {
-        	didSwap = 0;
-        	for(curr = head, tail = NULL; curr->next != NULL; tail = curr, curr = curr->next) {
-                	if(curr->w < curr->next->w) {
-                            temp = curr;
-			    if(curr == head)
-				head = curr->next;
-			    curr = curr->next;
-			    temp->next = curr->next;
-                            curr->next = temp;
-			    if(tail != NULL)
-				tail->next = curr;
-                            didSwap = 1;
-                	}
-           	}
-	}
-	slice_cntr->list = head;
-}
-
-
-/*sorts sizes of input module accros their height*/
-void sort_h(struct slicing_cntr *slice_cntr)
-{
-	int didSwap = 1;
-	struct module_dim *head;
-	struct module_dim *curr;
-	struct module_dim *tail;
-	struct module_dim *temp;
-	head = slice_cntr->list;
-	while(didSwap) {
-        	didSwap = 0;
-        	for(curr = head, tail = NULL; curr->next != NULL; tail = curr, curr = curr->next) {
-                	if(curr->h < curr->next->h) {
-                            temp = curr;
-			    if(curr == head)
-				head = curr->next;
-			    curr = curr->next;
-			    temp->next = curr->next;
-                            curr->next = temp;
-			    if(tail != NULL)
-				tail->next = curr;
-                            didSwap = 1;
-                	}
-           	}
-	}
-	slice_cntr->list = head;
-}
-
-
-/*selects smallest size among the short listed sizes in sizing slicing process*/
-struct small_size get_small_size(struct small_size *small_size_head)
-{
-
-	int didSwap = 1;
-	struct small_size *head;
-	struct small_size *curr;
-	struct small_size *tail;
-	struct small_size *temp;
-	head = small_size_head;
-	while(didSwap) {
-        	didSwap = 0;
-        	for(curr = head, tail = NULL; curr->next != NULL; tail = curr, curr = curr->next) {
-                	if(((curr->h)*(curr->w)) > ((curr->next->h)*(curr->next->w))) {
-                            temp = curr;
-			    if(curr == head)
-				head = curr->next;
-			    curr = curr->next;
-			    temp->next = curr->next;
-                            curr->next = temp;
-			    if(tail != NULL)
-				tail->next = curr;
-                            didSwap = 1;
-                	}
-           	}
-	}
-
-	return *head;
-}
-
-
-/* implementation of sizing slicing algorithm***********************************
- * input: struct module** : structure contaning all module and their sizes     *
- *        polish expression, number of modules                                 *
- * output: struct cost: structure holds area and floorplan                     */
-struct cost sizing_slicing(struct module_dim **module_array, int *polish_array, int module_count)
-{
-	int i;
-	int vertical = module_count + 1;
-	int horizontal = module_count + 2;
-	int breakall = 0;
-	struct slicing_cntr *head = NULL;
-	struct slicing_cntr *curr = NULL;
-	struct module_dim *temp;
-	struct module_dim *curr_list;
-	struct module_dim *curr_list_head;
-	struct module_dim *prev_list;
-	struct module_dim *smallest_list;
-	struct small_size *small_size_head = NULL;
-	struct small_size *small_size_temp;
-	struct small_size smallest_size;
-	struct module *small_modules;
-	struct module *small_modules_temp;
-	struct cost cost;
-
-	small_modules = (struct module*)malloc(module_count*sizeof(struct module));
-	small_modules_temp = small_modules;
-
-	for(i=0; i<((2*module_count) - 1); i++){
-		/*fills polish expression if digit detected*/
-		if((polish_array[i] != vertical) && (polish_array[i] != horizontal)){
-			if(head == NULL){
-				head = (struct slicing_cntr*)malloc(sizeof(struct slicing_cntr));
-				head->list = (struct module_dim*)malloc(sizeof(struct module_dim));
-				temp = head->list;
-				curr_list = module_array[polish_array[i] - 1];
-
-				while(curr_list != NULL){
-
-					temp->w = curr_list->w;
-					temp->h = curr_list->h;
-					temp->module_no = curr_list->module_no;
-					temp->size_no = curr_list->size_no;
-					temp->next = (struct module_dim*)malloc(sizeof(struct module_dim));
-					prev_list = temp;
-					temp = temp->next;
-					curr_list = curr_list->next;
-				}
-
-				prev_list->next = NULL;
-
-				head->next = NULL;
-				head->prev = NULL;
-				curr = head;
-
-			}
-			else{
-
-				curr->next = (struct slicing_cntr*)malloc(sizeof(struct slicing_cntr));
-
-				curr->next->list = (struct module_dim*)malloc(sizeof(struct module_dim));
-				temp = curr->next->list;
-				curr_list = module_array[polish_array[i] - 1];
-
-
-				while(curr_list != NULL){
-
-					temp->w = curr_list->w;
-					temp->h = curr_list->h;
-					temp->module_no = curr_list->module_no;
-					temp->size_no = curr_list->size_no;
-					temp->next = (struct module_dim*)malloc(sizeof(struct module_dim));
-					prev_list = temp;
-					temp = temp->next;
-					curr_list = curr_list->next;
-				}
-
-				prev_list->next = NULL;
-				curr->next->next = NULL;
-				curr->next->prev = curr;
-				curr = curr->next;
-
-			}
-		}
-		/* pop sizes of last two modules and perform selection and rejection of combined size
-		   used in sizing and slicing algorithm*/
-		else{
-			if(polish_array[i] == vertical){
-
-				sort_h(curr);
-				sort_h(curr->prev);
-
-				curr_list_head = curr->list;
-
-				prev_list = curr->prev->list;
-				while(prev_list != NULL){
-					curr_list = curr_list_head;
-					while(curr_list != NULL){
-						if(small_size_head == NULL){
-							small_size_head = (struct small_size*)malloc(sizeof(struct small_size));
-							small_size_temp = small_size_head;
-						}
-						else{
-							small_size_temp->next = (struct small_size*)malloc(sizeof(struct small_size));
-							small_size_temp = small_size_temp->next;
-						}
-						small_size_temp->w = (curr_list->w) + (prev_list->w);
-						small_size_temp->h = (curr_list->h > prev_list->h) ? curr_list->h : prev_list->h;
-						small_size_temp->col_module_no = curr_list->module_no;
-						small_size_temp->col_size_no = curr_list->size_no;
-						small_size_temp->row_module_no = prev_list->module_no;
-						small_size_temp->row_size_no = prev_list->size_no;
-						small_size_temp->next = NULL;
-						if(curr_list->h > prev_list->h)
-							curr_list_head = curr_list->next;
-						else if(curr_list->h < prev_list->h)
-							break;
-						else{
-							breakall = 1;
-							break;
-						}
-
-						curr_list = curr_list->next;
-					}
-					if(breakall)
-						break;
-					prev_list = prev_list->next;
-				}
-				breakall = 0;
-
-				/*find the smallest combination*/
-				smallest_size = get_small_size(small_size_head);
-				smallest_list = (struct module_dim*)malloc(sizeof(struct module_dim));
-				smallest_list->w = smallest_size.w;
-				smallest_list->h = smallest_size.h;
-				smallest_list->module_no = 0;
-				smallest_list->size_no = 0;
-				smallest_list->next = NULL;
-				/*store selected sizes*/
-				if(smallest_size.col_module_no != 0){
-					small_modules_temp->module = smallest_size.col_module_no;
-					small_modules_temp->size = smallest_size.col_size_no;
-					small_modules_temp++;
-				}
-				if(smallest_size.row_module_no != 0){
-					small_modules_temp->module = smallest_size.row_module_no;
- 					small_modules_temp->size = smallest_size.row_size_no;
-					small_modules_temp++;
-				}
-
-				//----todo: free prev list
-				/*temp = curr->prev->list;
-				while(temp!=NULL){
-					temp1 = temp;
-					temp = temp->next;
-					free(temp1);
-				}*/
-
-				curr->prev->list = smallest_list;
-				curr = curr->prev;
-
-				//----todo: free curr->list
-				free(curr->next);
-				curr->next = NULL; //----------------new line
-				free(small_size_head);
-				small_size_head = NULL;
-
-			}
-			else{
-				sort_w(curr);
-				sort_w(curr->prev);
-				temp = curr->list;
-
-				curr_list_head = curr->list;
-
-				prev_list = curr->prev->list;
-				while(prev_list != NULL){
-					curr_list = curr_list_head;
-					while(curr_list != NULL){
-						if(small_size_head == NULL){
-							small_size_head = (struct small_size*)malloc(sizeof(struct small_size));
-							small_size_temp = small_size_head;
-						}
-						else{
-							small_size_temp->next = (struct small_size*)malloc(sizeof(struct small_size));
-							small_size_temp = small_size_temp->next;
-						}
-						small_size_temp->h = (curr_list->h) + (prev_list->h);
-						small_size_temp->w = (curr_list->w > prev_list->w) ? curr_list->w : prev_list->w;
-						small_size_temp->col_module_no = curr_list->module_no;
-						small_size_temp->col_size_no = curr_list->size_no;
-						small_size_temp->row_module_no = prev_list->module_no;
-						small_size_temp->row_size_no = prev_list->size_no;
-						small_size_temp->next = NULL;
-						if(curr_list->w > prev_list->w)
-							curr_list_head = curr_list->next;
-						else if(curr_list->w < prev_list->w)
-							break;
-						else{
-							breakall = 1;
-							break;
-						}
-
-						curr_list = curr_list->next;
-					}
-					if(breakall)
-						break;
-					prev_list = prev_list->next;
-				}
-				breakall = 0;
-
-				//------get smallest size of all----------
-				smallest_size = get_small_size(small_size_head);
-				smallest_list = (struct module_dim*)malloc(sizeof(struct module_dim));
-				smallest_list->w = smallest_size.w;
-				smallest_list->h = smallest_size.h;
-				smallest_list->module_no = 0;
-				smallest_list->size_no = 0;
-				smallest_list->next = NULL;
-				//------------store sizes of individual module-------
-				if(smallest_size.col_module_no != 0){
-					small_modules_temp->module = smallest_size.col_module_no;
-					small_modules_temp->size = smallest_size.col_size_no;
-					small_modules_temp++;
-				}
-				if(smallest_size.row_module_no != 0){
-					small_modules_temp->module = smallest_size.row_module_no;
- 					small_modules_temp->size = smallest_size.row_size_no;
-					small_modules_temp++;
-				}
-				//-------linklist rearrangment--------------
-				/*temp = curr->prev->list;
-				while(temp!=NULL){
-					temp1 = temp;
-					temp = temp->next;
-					free(temp1);
-				}*/
-				curr->prev->list = smallest_list;
-				curr = curr->prev;
-				free(curr->next);
-				curr->next = NULL;
-				free(small_size_head);
-				small_size_head = NULL;
-
-
-
-			}
-
-		}
-
-	}
-
-
-
-	cost.area = head->list->w * head->list->h;
-	cost.final_modules = small_modules;
-
-	small_modules_temp = small_modules;
-
-	return cost;
-
-
-}
 
 
 /* parse input design file. Extract data and store in dynamic data structure*/
@@ -717,7 +342,7 @@ int parse_design(char *filename, struct module_dim ***module_array, float *lambd
         fscanf(fp, "%f %f %f\n", &W, &H, &P);
         temp_size += W*H;
         power[module_no-1] = P;
-        printf("%f %f %f\n", W, H, P);
+        //printf("%f %f %f\n", W, H, P);
 
         temp_module = (struct module_dim*)malloc(sizeof(struct module_dim));
 		*module_array_temp = temp_module;
@@ -901,13 +526,14 @@ float get_area(int module_count, struct module_dim **module_array, int *polish_e
 	int i;
 	struct module_dim *temp_module;
 
+    
     //get x_axis
     polish_2_cord(module_count,module_array,polish_exp);
 
 	temp_module = module_array[0];
 	float min_x = temp_module->x_axis;
 	float max_x = temp_module->x_axis + temp_module->w;
-
+    
 	for (i=1; i < module_count; i++) {
 		temp_module = module_array[i];
 		if (temp_module->x_axis < min_x)
@@ -916,6 +542,7 @@ float get_area(int module_count, struct module_dim **module_array, int *polish_e
 			max_x = temp_module->x_axis + temp_module->w;
 	}
 
+    
 	float w_chip =  (max_x - min_x);
 
 	temp_module = module_array[0];
@@ -930,62 +557,21 @@ float get_area(int module_count, struct module_dim **module_array, int *polish_e
 			max_y = temp_module->y_axis + temp_module->h;
 	}
 	float l_chip =  (max_y - min_y);
-
+    
+    /*
+    float s_sink = 0.60000;
+    float s_spreader = 0.30000;
+    if (w_chip > s_sink || l_chip > s_sink || w_chip > s_spreader || l_chip > s_spreader) {
+        return 0;
+    }
+    */
 
 	return w_chip * l_chip;
 }
 
 
-/* generats optimal design output file */
-/*
-void save_design(int module_count, struct module_dim **module_array, int *polish_exp)
-{
-	FILE *fp;
-	int i;
-    struct module_dim *temp_module;
-	char buf[MAX_NUM][100];
 
-	if((fp = fopen("../data/ev6.flp","w")) == NULL){
-		printf("\nCould not create out_design.flp file!\n");
-		exit(1);
-	}
-
-	for(i=0; i<module_count; i++){
-		temp_module = module_array[i];
-		sprintf(buf[i],"%d %f %f %f %f\n",i+1, temp_module->w, temp_module->h, temp_module->x_axis, temp_module->y_axis);
-	}
-
-
-	for(i=0; i<module_count; i++){
-		fprintf(fp, buf[i]);
-	}
-	fclose(fp);
-}
-*/
-
-/*
-void print_design(int module_count,struct cost cost,struct module_dim **module_array)
-{
-	printf("Printing Desing...\n");
-	int i;
-	struct module *head;
-	struct module_dim *temp_module;
-	head = cost.final_modules;
-	for(i=0; i<module_count; i++){
-		temp_module = module_array[(head[i].module)-1];
-		while(temp_module != NULL){
-			if(temp_module->size_no == head[i].size){
-				printf("%d:\t%f %f\t %f %f \n",(head[i].module), temp_module->w, temp_module->h, temp_module->x_axis, temp_module->y_axis);
-			}
-			temp_module = temp_module->next;
-		}
-	}
-
-}
- */
-
-
-void save_design_ev6(int module_count, struct module_dim **module_array, int *polish_exp)
+void save_design_ev6(int module_count, struct module_dim **module_array, int * polish_exp)
 {
     FILE *fp;
     int i;
@@ -998,9 +584,8 @@ void save_design_ev6(int module_count, struct module_dim **module_array, int *po
         exit(1);
     }
     
-    //polish_2_cord(module_count, module_array, polish_exp);
-    
-    //head = cost.final_modules;
+    polish_2_cord(module_count, module_array, polish_exp);
+
     
     for(i=0; i<module_count; i++){
         temp_module = module_array[i];
@@ -1015,37 +600,62 @@ void save_design_ev6(int module_count, struct module_dim **module_array, int *po
     
 }
 
-
-void save_design_ev7(int module_count, struct module_dim **module_array, int *polish_exp)
+void save_design_ev7(int module_count, struct module_dim **module_array, int * polish_exp)
 {
-	FILE *fp;
-	int i;
-	struct module_dim *temp_module;
-	char buf[MAX_NUM][100];
-
-
-	if((fp = fopen("../data/ev7.flp","w")) == NULL){
-		printf("\nCould not create out_design.flp file!\n");
-		exit(1);
-	}
-
-	// Change Polish to Axes
+    FILE *fp;
+    int i;
+    struct module_dim *temp_module;
+    char buf[MAX_NUM][100];
+    
+    if((fp = fopen("../data/ev7.flp","w")) == NULL){
+        printf("\nCould not create out_design.flp file!\n");
+        exit(1);
+    }
+    
+    // Change Polish to Axes
     polish_2_cord(module_count,module_array,polish_exp);
-
-	//head = cost.final_modules;
-
-	for(i=0; i<module_count; i++){
-		temp_module = module_array[i];
-		sprintf(buf[i],"%d %f %f %f %f\n",i+1, temp_module->w, temp_module->h, temp_module->x_axis, temp_module->y_axis);
-	}
-
-
-	for(i=0; i<module_count; i++){
-		fprintf(fp, buf[i]);
-	}
-	fclose(fp);
-
+    
+    for(i=0; i<module_count; i++){
+        temp_module = module_array[i];
+        sprintf(buf[i],"%d %f %f %f %f\n",i+1, temp_module->w, temp_module->h, temp_module->x_axis, temp_module->y_axis);
+    }
+    
+    
+    for(i=0; i<module_count; i++){
+        fprintf(fp, buf[i]);
+    }
+    fclose(fp);
+    
 }
+
+void save_design_final(int module_count, struct module_dim **module_array, int * polish_exp, float lambda)
+{
+    FILE *fp;
+    int i;
+    struct module_dim *temp_module;
+    char buf[MAX_NUM][100];
+    
+    if((fp = fopen("../data/113077548.txt","w")) == NULL){
+        printf("\nCould not create out_design.flp file!\n");
+        exit(1);
+    }
+    
+    // Change Polish to Axes
+    polish_2_cord(module_count,module_array,polish_exp);
+    
+    for(i=0; i<module_count; i++){
+        temp_module = module_array[i];
+        sprintf(buf[i],"%f %f\n",temp_module->x_axis, temp_module->y_axis);
+    }
+    
+    
+    for(i=0; i<module_count; i++){
+        fprintf(fp, buf[i]);
+    }
+    fclose(fp);
+    
+}
+
 
 double trunc(double d)
 {
@@ -1064,86 +674,19 @@ int check_for_overlap(int module_count, struct module_dim **module_array, float 
 		for(j=i+1; j<module_count; j++){
 			temp_module2 = module_array[j];
 
-			float ax1,ax2,bx1,bx2,ay1,ay2,by1,by2;
-			ax1 = temp_module1 -> x_axis;
-			ax2 = temp_module1 -> x_axis + temp_module1 -> w;
-			bx1 = temp_module2 -> x_axis;
-			bx2 = temp_module2 -> x_axis + temp_module2 -> w;
+			double l1x = trunc(10000000. *temp_module1 -> x_axis);
+			double r1x = trunc(10000000. * (temp_module1 -> x_axis + temp_module1 -> w));
+			double l2x = trunc(10000000. *temp_module2 -> x_axis);
+			double r2x = trunc(10000000. *(temp_module2 -> x_axis + temp_module2 -> w));
 
-			ay1 = temp_module1 -> y_axis;
-			ay2 = temp_module1 -> y_axis + temp_module1 -> h;
-			by1 = temp_module2 -> y_axis;
-			by2 = temp_module2 -> y_axis + temp_module2 -> h;
+			double l1y = trunc(10000000. *(temp_module1 -> y_axis + temp_module1 -> h));
+			double r1y = trunc(10000000. *temp_module1 -> y_axis);
+			double l2y = trunc(10000000. *(temp_module2 -> y_axis + temp_module2 -> h));
+			double r2y = trunc(10000000. *temp_module2 -> y_axis);
 
-/*
-			if(((temp_module1 -> x_axis >= temp_module2 -> x_axis + temp_module2->w) || (temp_module2 -> x_axis >= temp_module1 -> x_axis + temp_module1->w)))
-				{
-				//printf("i: %d, j: %d\n", i+1,j+1);
-				continue;
-				}
-			else if(((temp_module1 -> y_axis >= temp_module2 -> y_axis + temp_module2->h) || (temp_module2 -> y_axis >= temp_module1 -> y_axis + temp_module1->h)))
-				{
-				//printf("i: %d, j: %d\n", i+1,j+1);
-				continue;
-				}
-			else  {
-				//printf("%d and %d are not OK!\n",i,j);
-				//save_design_ev6(module_count, module_array, polish);
-				//exit(1);
-
-				printf("ax1: %f, ax2: %f\n", ax1, ax2);
-				printf("ay1: %f, ay2: %f\n", ay1, ay2);
-				printf("bx1: %f, bx2: %f\n", bx1, bx2);
-				printf("by1: %f, by2: %f\n", by1, by2);
-				printf("i: %d, j: %d\n", i+1,j+1);
-				print_polish(module_count,polish);
-				return 0;
-			}
-
-*/
-/*
-			if  ( ((ax1<bx1 && bx1<ax2) || (bx1<ax1 && ax1<bx2)) && ((ay1<by1 && by1<ay2) || (by1<ay1 && ay1<by2)) )
-				//exit(1);
-				{
-					printf("ax1: %f, ax2: %f\n", ax1, ax2);
-					printf("ay1: %f, ay2: %f\n", ay1, ay2);
-					printf("bx1: %f, bx2: %f\n", bx1, bx2);
-					printf("by1: %f, by2: %f\n", by1, by2);
-					printf("i: %d, j: %d (1)\n", i+1,j+1);
-					return 0;
-				}
-			if( ax1==bx1 && ax2==bx2 && ay1==by1 && ay2==by2 )
-				//exit(1);
-				{
-					printf("ax1: %f, ax2: %f\n", ax1, ax2);
-					printf("ay1: %f, ay2: %f\n", ay1, ay2);
-					printf("bx1: %f, bx2: %f\n", bx1, bx2);
-					printf("by1: %f, by2: %f\n", by1, by2);
-					printf("i: %d, j: %d (2)\n", i+1,j+1);
-					return 0;
-				}
-*/
-
-			float l1x = trunc(10000000. *temp_module1 -> x_axis);
-			float r1x = trunc(10000000. * (temp_module1 -> x_axis + temp_module1 -> w));
-			float l2x = trunc(10000000. *temp_module2 -> x_axis);
-			float r2x = trunc(10000000. *(temp_module2 -> x_axis + temp_module2 -> w));
-
-			float l1y = trunc(10000000. *(temp_module1 -> y_axis + temp_module1 -> h));
-			float r1y = trunc(10000000. *temp_module1 -> y_axis);
-			float l2y = trunc(10000000. *(temp_module2 -> y_axis + temp_module2 -> h));
-			float r2y = trunc(10000000. *temp_module2 -> y_axis);
-
-			/*
-		    if (l1x >= r2x || l2x >= r1x)
-		        continue;
-		    if (l1y <= r2y || l2y <= r1y)
-		        continue;
-			*/
 		    if (fabs(l1x - r2x) > 1 || fabs(l2x - r1x) > 1)
 		        continue;
 
-		    // If one rectangle is above other
 		    if (fabs(l1y - r2y) > 1 || fabs(l2y - r1y) > 1)
 		        continue;
 
@@ -1152,7 +695,6 @@ int check_for_overlap(int module_count, struct module_dim **module_array, float 
 			printf("l2x: %lf, r2x: %lf\n", l2x, r2x);
 			printf("l2y: %lf, r2y: %lf\n", l2y, r2y);
 		    printf("i: %d, j: %d (*)\n", i+1,j+1);
-		    exit(1);
 			return 0;
 		}
 	}

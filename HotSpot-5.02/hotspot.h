@@ -29,6 +29,6 @@ void global_config_from_strs(global_config_t *config, str_pair *table, int size)
  */
 int global_config_to_strs(global_config_t *config, str_pair *table, int max_entries);
 
-float get_temp(int , char **);
+double get_temp(int , char **);
 
 #endif
